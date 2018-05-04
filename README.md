@@ -26,9 +26,10 @@ output D' by r^2 for original data for each population plot (might help with peo
 
 Do this after filtering for SNPs too.
 
-setting 
+setting number of pops has to be in LD within, r^2 and D' cut-offs for filtering.
 
-
+PLINK might be able to do this rather than coding from scratch
+https://bioinformatics.stackexchange.com/questions/3040/ld-analysis-in-plink-based-on-reference-and-a-snp-list
 
 
 https://www.ndsu.edu/pubweb/~mcclean/plsc731/Linkage%20Disequilibrium%20-%20Association%20Mapping%20in%20Plants-lecture-overheads.pdf
