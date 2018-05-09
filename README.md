@@ -1,4 +1,15 @@
 # GBS_SNP_filter
+
+First filter for bi-allelic SNPs
+Then take one SNP per locus
+
+
+
+
+
+
+
+#Then
 filtering SNPs based on LD and HWE status
 
 p1 = SNP 1 allele 1 (A1) freq
