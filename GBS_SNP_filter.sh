@@ -1,11 +1,10 @@
 filename=`cat GBS_SNP_filter.txt | tail -n 1`
+basename=`echo $filename | sed 's/.vcf//g'`
 
-if [ -f $filename ]; then
-   echo "File $filename exists."
+if [ -f $basename.biallelic.vcf ]; then
 else
-   echo "File $filename does not exist."
+   grep "##" $filename >> header_row.txt
+   grep -v "##" >> temp
 fi
 
 
-grep "##" $filename >> header_row.txt
-grep -v "##" >> temp
