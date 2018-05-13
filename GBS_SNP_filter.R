@@ -24,6 +24,8 @@ if (!((paste(basename,".biallelic.vcf",sep="")) %in% filelist)) {#1A  what to do
 
 if (!((paste(basename,".oneSNP.vcf",sep="")) %in% filelist)) { #3A: if oneSNP.vcf doesn't exist, filtering for SNPs with the greatest coverage across individuals
   
+
+  0/1:15:0,11,0,4
   
   
 }  #3B
