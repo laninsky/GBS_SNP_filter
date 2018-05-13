@@ -14,4 +14,6 @@ if (!((paste(basename,".biallelic.vcf",sep="")) %in% filelist)) {#1A  what to do
   write(paste(basename,".biallelic.vcf has the following number of SNPs:",sep=""),logfilename,append=TRUE)
   write((dim(temp)[1]-1),logfilename,append=TRUE)  
   write_delim(temp,(paste(basename,".biallelic.vcf",sep="")),delim="\t",append=TRUE,col_names=TRUE)  
- } #1B  
+} else { #1AB
+  do this
+} #1B  
