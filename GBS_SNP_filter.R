@@ -21,3 +21,9 @@ if (!((paste(basename,".biallelic.vcf",sep="")) %in% filelist)) {#1A  what to do
     temp <- read_tsv((paste(basename,".biallelic.vcf",sep="")),col_names=TRUE,skip=numberofheaders)
   } #2B  
 } #1B  
+
+if (!((paste(basename,".oneSNP.vcf",sep="")) %in% filelist)) { #3A: if oneSNP.vcf doesn't exist, filtering for SNPs with the greatest coverage across individuals
+  
+  
+  
+}  #3B
