@@ -7,4 +7,5 @@ else
    grep -v "##" >> temp
 fi
 
+Rscript GBS_SNP_filter.R
 
