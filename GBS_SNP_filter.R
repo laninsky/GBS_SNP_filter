@@ -6,9 +6,14 @@ logfilename <- paste(basename,".log",sep="")
 
 if (!((paste(basename,".biallelic.vcf",sep="")) %in% filelist)) {#1A  what to do if biallelic doesn't exist
   temp <- read_tsv("temp",col_names=TRUE)
-  
+  write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)
+  write(paste(basename,".vcf has the following number of SNPs:",sep=""),logfilename,append=TRUE)
+  write((dim(temp)[1]-1),logfilename,append=TRUE)  
   temp <- temp %>% mutate(commacount=str_count(ALT,",")) %>% filter(., commacount==0) %>% select(.,-commacount)
-  
+  write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)
+  write(paste(basename,".biallelic.vcf has the following number of SNPs:",sep=""),logfilename,append=TRUE)
+  write((dim(temp)[1]-1),logfilename,append=TRUE)  
+  write.table(temp,(paste(basename,".biallelic.vcf",sep="")),quote=FALSEappend=TRUE)
   
   
  } #1B  
