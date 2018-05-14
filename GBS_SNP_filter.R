@@ -28,7 +28,14 @@ if (!((paste(basename,".oneSNP.vcf",sep="")) %in% filelist)) {#3A: if oneSNP.vcf
   duplicatedloci <- unique(temp$`#CHROM`[which(duplicated(temp$`#CHROM`)==TRUE)])
   write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)
   write("The following number of loci have more than one SNP:",logfilename,append=TRUE) 
-  write(length(duplicatedloci),logfilename,append=TRUE) 
+  write(length(duplicatedloci),logfilename,append=TRUE)
+  notduplicated <- temp %>% filter(., (!(`#CHROM` %in% duplicatedloci)))
+  duplicated <- temp %>% filter(., (`#CHROM` %in% duplicatedloci))
+  duplicated <- duplicated %>% mutate_at(vars(10:dim(temp)[2]), .funs = funs(cov = gsub(":.*","",gsub("^.*?:","", . ))))
+  for (i in duplicatedloci) {
+    temptemp <- duplicated %>% filter(., (`#CHROM` %in% i))
+    
+    temptemp %>% mutate_at(.,10:dim(temp)[2],gsub(".*?:","", . ))
   
   
   # Want to create a vector listing the loci with more than one SNP (duplicated)
