@@ -26,6 +26,11 @@ if (!((paste(basename,".biallelic.vcf",sep="")) %in% filelist)) {#1A  what to do
 
 if (!((paste(basename,".oneSNP.vcf",sep="")) %in% filelist)) {#3A: if oneSNP.vcf doesn't exist, filtering for SNPs with the greatest coverage across individuals
   duplicatedloci <- unique(temp$`#CHROM`[which(duplicated(temp$`#CHROM`)==TRUE)])
+  write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)
+  write("The following number of loci have more than one SNP:",logfilename,append=TRUE) 
+  write(length(duplicatedloci),logfilename,append=TRUE) 
+  
+  
   # Want to create a vector listing the loci with more than one SNP (duplicated)
   # write a new matrix which has the loci that DON'T fall in this group
   # Then, need to go through by column for samples, using colon as a delimiter and get coverage e.g.
