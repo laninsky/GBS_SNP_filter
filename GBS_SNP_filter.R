@@ -39,6 +39,9 @@ if (!((paste(basename,".oneSNP.vcf",sep="")) %in% filelist)) {#3A: if oneSNP.vcf
   for (i in duplicatedloci) {
     temptemp <- duplicated %>% filter(., (`#CHROM` %in% i))
     zerocounts <- unlist(lapply(1:(dim(temptemp)[1]),function(x){sum(temptemp[x,(dim(temp)[2]+1):(dim(temptemp)[2])]==0)}))
+    if(!(length(zerocounts==min(zerocounts))==length(zerocounts))) {
+      break
+    }  
     temptemp <- temptemp[(which(zerocounts==min(zerocounts))),]    
     covcounts <- rowSums(temptemp[,(dim(temp)[2]+1):(dim(temptemp)[2])])
     temptemp <- temptemp[(which(covcounts==min(covcounts))),]
@@ -48,6 +51,7 @@ if (!((paste(basename,".oneSNP.vcf",sep="")) %in% filelist)) {#3A: if oneSNP.vcf
     } else { #4AB: if we HAVE narrowed to one SNP for this locus
       duplicated_reduced <- bind_rows(duplicated_reduced, temptemp)
     } #4B 
+    print(paste("Up to ",dim(duplicated_reduced)[1]," out of ",length(duplicatedloci)," loci with multiple SNPs",sep=""))
   }
   origcolnumber <- dim(temp)[2]
   temp <- bind_rows(notduplicated,duplicated_reduced)
