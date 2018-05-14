@@ -64,15 +64,6 @@ if (!((paste(basename,".oneSNP.vcf",sep="")) %in% filelist)) {#3A: if oneSNP.vcf
     temp <- temp %>% mutate_at(vars(10:dim(temp)[2]), .funs = funs(cov = gsub(":.*","",gsub("^.*?:","", . )))) 
     temp <- temp %>%  mutate_at(vars((origcolnumber+1):(dim(temp)[2])),funs(as.numeric))
 } #3B
-  
-  # Want to create a vector listing the loci with more than one SNP (duplicated)
-  # write a new matrix which has the loci that DON'T fall in this group
-  # Then, need to go through by column for samples, using colon as a delimiter and get coverage e.g.
-  # 0/1:15:0,11,0,4
-  # the SNP that has the less zeroes wins
-  # If they tie, then the SNP with the highest overall coverage wins
-  # print out the final number of SNPs following this step to the log
-}  #3B
 
 if (!((paste(basename,".rsq",sep="")) %in% filelist)) { #4A: if *.rsq doesn't exist, creating this
   # need to read in popmap and give rsq by population between SNPs
