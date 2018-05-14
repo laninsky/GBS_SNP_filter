@@ -14,7 +14,7 @@ if (!((paste(basename,".biallelic.vcf",sep="")) %in% filelist)) {#1A  what to do
   write(paste(basename,".biallelic.vcf has the following number of SNPs:",sep=""),logfilename,append=TRUE)
   write((dim(temp)[1]-1),logfilename,append=TRUE) 
   headerrows <- read_tsv("header_row.txt",col_names=FALSE)
-  write_delim(headerrows,(paste(basename,".biallelic.vcf",sep="")),delim="\t",append=TRUE,col_names=TRUE)  
+  write.table(headerrows,(paste(basename,".biallelic.vcf",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE)  
   write_delim(temp,(paste(basename,".biallelic.vcf",sep="")),delim="\t",append=TRUE,col_names=TRUE)  
 } else { #1AB
   if (!((paste(basename,".oneSNP.vcf",sep="")) %in% filelist)) {#2A reading in *biallelic.vcf if *oneSNP.vcf doesn't exist
@@ -24,7 +24,8 @@ if (!((paste(basename,".biallelic.vcf",sep="")) %in% filelist)) {#1A  what to do
   } #2B  
 } #1B  
 
-if (!((paste(basename,".oneSNP.vcf",sep="")) %in% filelist)) { #3A: if oneSNP.vcf doesn't exist, filtering for SNPs with the greatest coverage across individuals
+if (!((paste(basename,".oneSNP.vcf",sep="")) %in% filelist)) {#3A: if oneSNP.vcf doesn't exist, filtering for SNPs with the greatest coverage across individuals
+  duplicatedloci <- unique(temp$`#CHROM`[which(duplicated(temp$`#CHROM`)==TRUE)])
   # Want to create a vector listing the loci with more than one SNP (duplicated)
   # write a new matrix which has the loci that DON'T fall in this group
   # Then, need to go through by column for samples, using colon as a delimiter and get coverage e.g.
