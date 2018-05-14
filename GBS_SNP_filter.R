@@ -34,8 +34,8 @@ if (!((paste(basename,".oneSNP.vcf",sep="")) %in% filelist)) {#3A: if oneSNP.vcf
   duplicated <- duplicated %>% mutate_at(vars(10:dim(temp)[2]), .funs = funs(cov = gsub(":.*","",gsub("^.*?:","", . ))))
   for (i in duplicatedloci) {
     temptemp <- duplicated %>% filter(., (`#CHROM` %in% i))
+    temptempsums <- temptemp %>% select((dim(temp)[2]+1):(dim(temptemp)[2])) %>% mutate_at(vars(names(.)),funs(as.numeric)) %>% rowSums(.)
     
-    temptemp %>% mutate_at(.,10:dim(temp)[2],gsub(".*?:","", . ))
   
   
   # Want to create a vector listing the loci with more than one SNP (duplicated)
