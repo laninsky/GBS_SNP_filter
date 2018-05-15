@@ -66,6 +66,12 @@ if (!((paste(basename,".oneSNP.vcf",sep="")) %in% filelist)) {#3A: if oneSNP.vcf
     temp <- temp %>%  mutate_at(vars((origcolnumber+1):(dim(temp)[2])),funs(as.numeric))
 } #3B
 
+
+
+#RSQ is too computationally costly to do on the "full dataset". Instead, bring the HWE calculations up here, and per-population coverage
+# After filtering on this, then can do Rsq at the end.
+
+
 if (!((paste(basename,".rsq",sep="")) %in% filelist)) { #4A: if *.rsq doesn't exist, creating this
   popmap <- read.table("popmap.txt",header=FALSE,stringsAsFactors=FALSE)
   popnames <- unique(popmap[,2])
