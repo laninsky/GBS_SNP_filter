@@ -101,7 +101,7 @@ if (!((paste(basename,".rsq",sep="")) %in% filelist)) { #4A: if *.rsq doesn't ex
         twobytwo[2,1] <- twobytwo[2,1] + tempmatrix[2,2]*1/(1+oddsratio)  
         twobytwo[1,2] <- twobytwo[1,2] + tempmatrix[2,2]*1/(1+oddsratio) 
         twobytwo[2,2] <- twobytwo[2,2] + tempmatrix[2,2]*oddsratio/(1+oddsratio)
-        
+        D <- (twobytwo[1,1]/sum(twobytwo))-sum(twobytwo[,1])/sum(twobytwo)*sum(twobytwo[1,])/sum(twobytwo)
         
         
         
