@@ -119,23 +119,14 @@ if (!((paste(basename,".rsq",sep="")) %in% filelist)) { #4A: if *.rsq doesn't ex
       tempmatrix[1,2] <- ((((2*tempmatrix[1,1])+tempmatrix[2,1])/(2*sum(tempmatrix[,1])))^2)*sum(tempmatrix[,1])
       tempmatrix[3,2] <- ((((2*tempmatrix[3,1])+tempmatrix[2,1])/(2*sum(tempmatrix[,1])))^2)*sum(tempmatrix[,1])
       tempmatrix[2,2] <- 2*(((2*tempmatrix[1,1])+tempmatrix[2,1])/(2*sum(tempmatrix[,1])))*(((2*tempmatrix[3,1])+tempmatrix[2,1])/(2*sum(tempmatrix[,1])))*sum(tempmatrix[,1])
-      
-      ((tempmatrix[1,1]/sum(tempmatrix[,1])*2)+tempmatrix[2,1]/sum(tempmatrix[,1]))^2
-
-      twobytwo[1,1] <- twobytwo[1,1] + tempmatrix[2,2]*oddsratio/(1+oddsratio)
-        twobytwo[2,1] <- twobytwo[2,1] + tempmatrix[2,2]*1/(1+oddsratio)  
-        twobytwo[1,2] <- twobytwo[1,2] + tempmatrix[2,2]*1/(1+oddsratio) 
-        twobytwo[2,2] <- twobytwo[2,2] + tempmatrix[2,2]*oddsratio/(1+oddsratio)
-        temprow[1,(k+2)] <- ((twobytwo[1,1]*twobytwo[2,2]-twobytwo[1,2]*twobytwo[2,1])^2)/(sum(twobytwo[,1])*sum(twobytwo[,2])*sum(twobytwo[1,])*sum(twobytwo[2,]))
-        } #7B
-    write.table(temprow,(paste(basename,".rsq",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE,append=TRUE)  
-
-  
-  
+      if (sum(tempmatrix[,1])==0) {
+        temprow[1,(k+1)] <- "NaN"
+      } else {  
+        temprow[1,(k+1)] <- suppressWarnings(fisher.test(tempmatrix)$p.value)
+      }  
+    } #7B
+    write.table(temprow,(paste(basename,".hwe",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE,append=TRUE)    
   } #5B  
-  
-  # need to read in popmap and give rsq by population between SNPs
-  # e.g. locus_1 locus_2 pop1 pop2 pop3 etc
 } #4B  
   
 # after all of this preamble, the actual code for doing   
