@@ -70,7 +70,9 @@ if (!((paste(basename,".rsq",sep="")) %in% filelist)) { #4A: if *.rsq doesn't ex
   popmap <- read.table("popmap.txt",header=FALSE,stringsAsFactors=FALSE)
   popnames <- unique(popmap[,2])
   tablerow <- matrix(c("snp1","snp2",popnames),nrow=1)
+  hwetablerow <- matrix(c("snp",popnames),nrow=1)
   write.table(tablerow,(paste(basename,".rsq",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE) 
+  write.table(hwetablerow,(paste(basename,".hwe",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE) 
   for (i in 1:(dim(temp)[1]-1)) { #5A: for SNP1
     for (j in (i+1):(dim(temp)[1])) { #6A for SNP2
       temprow <- matrix(c(temp[i,1],temp[j,1],popnames),nrow=1)
@@ -105,6 +107,40 @@ if (!((paste(basename,".rsq",sep="")) %in% filelist)) { #4A: if *.rsq doesn't ex
         } #7B
     write.table(temprow,(paste(basename,".rsq",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE,append=TRUE)  
     } #6B
+    temprow <- matrix(c(temp[i,1],popnames),nrow=1)
+    temptemp <- temp[i,1:origcolnumber]      
+    for (k in 1:length(popnames)) { #7A: for each population
+      temptemppop <- select(temptemp, which(names(temptemp) %in% (popmap[(which(popmap[,2]==popnames[k])),1])))
+      temptemppop <- mutate_at(temptemppop,vars(1:dim(temptemppop)[2]),funs(gsub(":.*","", . )))
+        tempmatrix <- matrix(0,ncol=3,nrow=3)
+        tempmatrix[1,1] <- length(which(temptemppop[1,]=="0/0" & temptemppop[2,]=="0/0"))
+        tempmatrix[2,1] <- length(which((temptemppop[1,]=="0/1" | temptemppop[1,]=="1/0") & temptemppop[2,]=="0/0"))
+        tempmatrix[3,1] <- length(which(temptemppop[1,]=="1/1" & temptemppop[2,]=="0/0"))
+        tempmatrix[1,2] <- length(which(temptemppop[1,]=="0/0" & (temptemppop[2,]=="0/1" | temptemppop[2,]=="1/0")))
+        tempmatrix[2,2] <- length(which((temptemppop[1,]=="0/1" | temptemppop[1,]=="1/0") & (temptemppop[2,]=="0/1" | temptemppop[2,]=="1/0")))
+        tempmatrix[3,2] <- length(which(temptemppop[1,]=="1/1" & (temptemppop[2,]=="0/1" | temptemppop[2,]=="1/0")))
+        tempmatrix[1,3] <- length(which(temptemppop[1,]=="0/0" & temptemppop[2,]=="1/1"))
+        tempmatrix[2,3] <- length(which((temptemppop[1,]=="0/1" | temptemppop[1,]=="1/0") & temptemppop[2,]=="1/1"))
+        tempmatrix[3,3] <- length(which(temptemppop[1,]=="1/1" & temptemppop[2,]=="1/1"))
+        twobytwo <- matrix(0,nrow=2,ncol=2)
+        twobytwo[1,1] <- 2*tempmatrix[1,1]+tempmatrix[2,1]+tempmatrix[1,2]
+        twobytwo[2,1] <- 2*tempmatrix[3,1]+tempmatrix[3,2]+tempmatrix[2,1]
+        twobytwo[1,2] <- 2*tempmatrix[1,3]+tempmatrix[1,2]+tempmatrix[2,3]
+        twobytwo[2,2] <- 2*tempmatrix[3,3]+tempmatrix[3,2]+tempmatrix[2,3]
+        oddsratio <- (twobytwo[1,1]/twobytwo[2,1])/(twobytwo[1,2]/twobytwo[2,2])
+        if(is.na(oddsratio)) {
+          oddsratio <- 0
+        }
+        twobytwo[1,1] <- twobytwo[1,1] + tempmatrix[2,2]*oddsratio/(1+oddsratio)
+        twobytwo[2,1] <- twobytwo[2,1] + tempmatrix[2,2]*1/(1+oddsratio)  
+        twobytwo[1,2] <- twobytwo[1,2] + tempmatrix[2,2]*1/(1+oddsratio) 
+        twobytwo[2,2] <- twobytwo[2,2] + tempmatrix[2,2]*oddsratio/(1+oddsratio)
+        temprow[1,(k+2)] <- ((twobytwo[1,1]*twobytwo[2,2]-twobytwo[1,2]*twobytwo[2,1])^2)/(sum(twobytwo[,1])*sum(twobytwo[,2])*sum(twobytwo[1,])*sum(twobytwo[2,]))
+        } #7B
+    write.table(temprow,(paste(basename,".rsq",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE,append=TRUE)  
+
+  
+  
   } #5B  
   
   # need to read in popmap and give rsq by population between SNPs
