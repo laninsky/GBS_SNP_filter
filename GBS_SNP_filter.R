@@ -74,10 +74,14 @@ if (!((paste(basename,".rsq",sep="")) %in% filelist)) { #4A: if *.rsq doesn't ex
   for (i in 1:(dim(temp)[1]-1)) {
     for (j in (i+1):(dim(temp)[1])) {
       temprow <- matrix(c(temp[i,1],temp[j,1],popnames),nrow=1)
-      temptemp <- temp[c(i,j),1:origcolnumber]
-      temptemp <- select(temptemp, which(names(temptemp) %in% (popmap[(which(popmap[,2]==popnames[k])),1]))) %>% mutate_all(
+      temptemp <- temp[c(i,j),1:origcolnumber]      
       for (k in 1:length(popnames)) {
+        temptemp <- select(temptemp, which(names(temptemp) %in% (popmap[(which(popmap[,2]==popnames[k])),1])))
+        temptemp <- mutate_at(temptemp,vars(1:dim(temptemp)[2]),funs(gsub(":.*","", . )))
         tempmatrix <- matrix(0,ncol=3,nrow=3)
+        tempmatrix[1,1] <- length(which(temptemp[1,]=="0/0" & temptemp[2,]=="0/0"))
+        
+        (a/c) / (b/d)
         
         
 
