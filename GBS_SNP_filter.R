@@ -112,26 +112,17 @@ if (!((paste(basename,".rsq",sep="")) %in% filelist)) { #4A: if *.rsq doesn't ex
     for (k in 1:length(popnames)) { #7A: for each population
       temptemppop <- select(temptemp, which(names(temptemp) %in% (popmap[(which(popmap[,2]==popnames[k])),1])))
       temptemppop <- mutate_at(temptemppop,vars(1:dim(temptemppop)[2]),funs(gsub(":.*","", . )))
-        tempmatrix <- matrix(0,ncol=3,nrow=3)
-        tempmatrix[1,1] <- length(which(temptemppop[1,]=="0/0" & temptemppop[2,]=="0/0"))
-        tempmatrix[2,1] <- length(which((temptemppop[1,]=="0/1" | temptemppop[1,]=="1/0") & temptemppop[2,]=="0/0"))
-        tempmatrix[3,1] <- length(which(temptemppop[1,]=="1/1" & temptemppop[2,]=="0/0"))
-        tempmatrix[1,2] <- length(which(temptemppop[1,]=="0/0" & (temptemppop[2,]=="0/1" | temptemppop[2,]=="1/0")))
-        tempmatrix[2,2] <- length(which((temptemppop[1,]=="0/1" | temptemppop[1,]=="1/0") & (temptemppop[2,]=="0/1" | temptemppop[2,]=="1/0")))
-        tempmatrix[3,2] <- length(which(temptemppop[1,]=="1/1" & (temptemppop[2,]=="0/1" | temptemppop[2,]=="1/0")))
-        tempmatrix[1,3] <- length(which(temptemppop[1,]=="0/0" & temptemppop[2,]=="1/1"))
-        tempmatrix[2,3] <- length(which((temptemppop[1,]=="0/1" | temptemppop[1,]=="1/0") & temptemppop[2,]=="1/1"))
-        tempmatrix[3,3] <- length(which(temptemppop[1,]=="1/1" & temptemppop[2,]=="1/1"))
-        twobytwo <- matrix(0,nrow=2,ncol=2)
-        twobytwo[1,1] <- 2*tempmatrix[1,1]+tempmatrix[2,1]+tempmatrix[1,2]
-        twobytwo[2,1] <- 2*tempmatrix[3,1]+tempmatrix[3,2]+tempmatrix[2,1]
-        twobytwo[1,2] <- 2*tempmatrix[1,3]+tempmatrix[1,2]+tempmatrix[2,3]
-        twobytwo[2,2] <- 2*tempmatrix[3,3]+tempmatrix[3,2]+tempmatrix[2,3]
-        oddsratio <- (twobytwo[1,1]/twobytwo[2,1])/(twobytwo[1,2]/twobytwo[2,2])
-        if(is.na(oddsratio)) {
-          oddsratio <- 0
-        }
-        twobytwo[1,1] <- twobytwo[1,1] + tempmatrix[2,2]*oddsratio/(1+oddsratio)
+      tempmatrix <- matrix(0,ncol=2,nrow=3)
+      tempmatrix[1,1] <- length(which(temptemppop[1,]=="0/0"))
+      tempmatrix[2,1] <- length(which((temptemppop[1,]=="0/1" | temptemppop[1,]=="1/0")))
+      tempmatrix[3,1] <- length(which(temptemppop[1,]=="1/1"))
+      tempmatrix[1,2] <- ((((2*tempmatrix[1,1])+tempmatrix[2,1])/(2*sum(tempmatrix[,1])))^2)*sum(tempmatrix[,1])
+      tempmatrix[3,2] <- ((((2*tempmatrix[3,1])+tempmatrix[2,1])/(2*sum(tempmatrix[,1])))^2)*sum(tempmatrix[,1])
+      tempmatrix[2,2] <- 2*(((2*tempmatrix[1,1])+tempmatrix[2,1])/(2*sum(tempmatrix[,1])))*(((2*tempmatrix[3,1])+tempmatrix[2,1])/(2*sum(tempmatrix[,1])))*sum(tempmatrix[,1])
+      
+      ((tempmatrix[1,1]/sum(tempmatrix[,1])*2)+tempmatrix[2,1]/sum(tempmatrix[,1]))^2
+
+      twobytwo[1,1] <- twobytwo[1,1] + tempmatrix[2,2]*oddsratio/(1+oddsratio)
         twobytwo[2,1] <- twobytwo[2,1] + tempmatrix[2,2]*1/(1+oddsratio)  
         twobytwo[1,2] <- twobytwo[1,2] + tempmatrix[2,2]*1/(1+oddsratio) 
         twobytwo[2,2] <- twobytwo[2,2] + tempmatrix[2,2]*oddsratio/(1+oddsratio)
