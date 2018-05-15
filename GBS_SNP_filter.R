@@ -109,7 +109,7 @@ if (!((paste(basename,".rsq",sep="")) %in% filelist)) { #4A: if *.rsq doesn't ex
     } #6B
     temprow <- matrix(c(temp[i,1],popnames),nrow=1)
     temptemp <- temp[i,1:origcolnumber]      
-    for (k in 1:length(popnames)) { #7A: for each population
+    for (k in 1:length(popnames)) { #8A: for each population
       temptemppop <- select(temptemp, which(names(temptemp) %in% (popmap[(which(popmap[,2]==popnames[k])),1])))
       temptemppop <- mutate_at(temptemppop,vars(1:dim(temptemppop)[2]),funs(gsub(":.*","", . )))
       tempmatrix <- matrix(0,ncol=2,nrow=3)
@@ -124,7 +124,7 @@ if (!((paste(basename,".rsq",sep="")) %in% filelist)) { #4A: if *.rsq doesn't ex
       } else {  
         temprow[1,(k+1)] <- suppressWarnings(fisher.test(tempmatrix)$p.value)
       }  
-    } #7B
+    } #8B
     write.table(temprow,(paste(basename,".hwe",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE,append=TRUE)
     print(paste("Up to ",i," out of ",dim(temp)[1]," SNPs, calculating LD and HWE",sep=""))
   } #5B  
