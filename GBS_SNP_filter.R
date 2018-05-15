@@ -75,6 +75,7 @@ if (!((paste(basename,".rsq",sep="")) %in% filelist)) { #4A: if *.rsq doesn't ex
     for (j in (i+1):(dim(temp)[1])) {
       temprow <- matrix(c(temp[i,1],temp[j,1],popnames),nrow=1)
       temptemp <- temp[c(i,j),1:origcolnumber]
+      temptemp <- select(temptemp, which(names(temptemp) %in% (popmap[(which(popmap[,2]==popnames[k])),1]))) %>% mutate_all(
       for (k in 1:length(popnames)) {
         tempmatrix <- matrix(0,ncol=3,nrow=3)
         
