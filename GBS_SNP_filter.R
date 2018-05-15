@@ -67,6 +67,8 @@ if (!((paste(basename,".oneSNP.vcf",sep="")) %in% filelist)) {#3A: if oneSNP.vcf
 } #3B
 
 if (!((paste(basename,".rsq",sep="")) %in% filelist)) { #4A: if *.rsq doesn't exist, creating this
+  popmap <- read_tsv("popmap.txt",col_names=FALSE)
+  
   # need to read in popmap and give rsq by population between SNPs
   # e.g. locus_1 locus_2 pop1 pop2 pop3 etc
 } #4B  
