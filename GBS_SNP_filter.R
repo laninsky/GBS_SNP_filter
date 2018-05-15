@@ -125,7 +125,8 @@ if (!((paste(basename,".rsq",sep="")) %in% filelist)) { #4A: if *.rsq doesn't ex
         temprow[1,(k+1)] <- suppressWarnings(fisher.test(tempmatrix)$p.value)
       }  
     } #7B
-    write.table(temprow,(paste(basename,".hwe",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE,append=TRUE)    
+    write.table(temprow,(paste(basename,".hwe",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE,append=TRUE)
+    print(paste("Up to ",i," out of ",dim(temp)[1]," SNPs, calculating LD and HWE",sep=""))
   } #5B  
 } #4B  
   
