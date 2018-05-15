@@ -38,13 +38,10 @@ if (!((paste(basename,".oneSNP.vcf",sep="")) %in% filelist)) {#3A: if oneSNP.vcf
   duplicated_reduced <- NULL
   for (i in duplicatedloci) {
     temptemp <- duplicated %>% filter(., (`#CHROM` %in% i))
-    zerocounts <- unlist(lapply(1:(dim(temptemp)[1]),function(x){sum(temptemp[x,(dim(temp)[2]+1):(dim(temptemp)[2])]==0)}))
-    if(!(length(zerocounts==min(zerocounts))==length(zerocounts))) {
-      break
-    }  
+    zerocounts <- unlist(lapply(1:(dim(temptemp)[1]),function(x){sum(temptemp[x,(dim(temp)[2]+1):(dim(temptemp)[2])]==0)})) 
     temptemp <- temptemp[(which(zerocounts==min(zerocounts))),]    
     covcounts <- rowSums(temptemp[,(dim(temp)[2]+1):(dim(temptemp)[2])])
-    temptemp <- temptemp[(which(covcounts==min(covcounts))),]
+    temptemp <- temptemp[(which(covcounts==max(covcounts))),]
     if (dim(temptemp)[1]>1) { #4A: if we haven't narrowed down to one SNP for this locus
       randomSNP <- sample(1:dim(temptemp)[1], 1, replace=FALSE)
       duplicated_reduced <- bind_rows(duplicated_reduced, temptemp[randomSNP,])
