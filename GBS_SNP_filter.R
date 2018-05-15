@@ -71,11 +71,11 @@ if (!((paste(basename,".rsq",sep="")) %in% filelist)) { #4A: if *.rsq doesn't ex
   popnames <- unique(popmap[,2])
   tablerow <- matrix(c("snp1","snp2",popnames),nrow=1)
   write.table(tablerow,(paste(basename,".rsq",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE) 
-  for (i in 1:(dim(temp)[1]-1)) {
-    for (j in (i+1):(dim(temp)[1])) {
+  for (i in 1:(dim(temp)[1]-1)) { #5A: for SNP1
+    for (j in (i+1):(dim(temp)[1])) { #6A for SNP2
       temprow <- matrix(c(temp[i,1],temp[j,1],popnames),nrow=1)
       temptemp <- temp[c(i,j),1:origcolnumber]      
-      for (k in 1:length(popnames)) {
+      for (k in 1:length(popnames)) { #7A: for each population
         temptemppop <- select(temptemp, which(names(temptemp) %in% (popmap[(which(popmap[,2]==popnames[k])),1])))
         temptemppop <- mutate_at(temptemppop,vars(1:dim(temptemppop)[2]),funs(gsub(":.*","", . )))
         tempmatrix <- matrix(0,ncol=3,nrow=3)
@@ -102,23 +102,10 @@ if (!((paste(basename,".rsq",sep="")) %in% filelist)) { #4A: if *.rsq doesn't ex
         twobytwo[1,2] <- twobytwo[1,2] + tempmatrix[2,2]*1/(1+oddsratio) 
         twobytwo[2,2] <- twobytwo[2,2] + tempmatrix[2,2]*oddsratio/(1+oddsratio)
         D <- (twobytwo[1,1]/sum(twobytwo))-sum(twobytwo[,1])/sum(twobytwo)*sum(twobytwo[1,])/sum(twobytwo)
-        
-        
-        
-        (a/c) / (b/d)
-        
-        
-
-        p1 = SNP 1 allele 1 (A1) freq p2 = SNP 1 allele 2 (A2) freq q1 = SNP 2 allele 1 (B1) freq q2 = SNP 2 allele 2 (B2) freq
-
-observed vs expected A1B1 freq x11, expected p1q1 A1B2 freq x12, expected p1q2 A2B1 freq x21, expected p2q1 A2B2 freq x22, expected p2q2
-
-D = (x11)(x22) – (x12)(x21) D = x11 – p1q1
-
-D' = D/(min(p1q1, p2q2) when D < 0 or D' = D/(min(p1q2, p1q2) when D > 0
-
-r^2 = D^2/p1q1p2q2
-      
+        temprow[1,(k+2)] <- (D^2)/sum(twobytwo[,1])/sum(twobytwo)*sum(twobytwo[1,])/sum(twobytwo)*sum(twobytwo[,2])/sum(twobytwo)*sum(twobytwo[2,])/sum(twobytwo)
+      } #7B
+    } #6B
+  } #5B  
   
   # need to read in popmap and give rsq by population between SNPs
   # e.g. locus_1 locus_2 pop1 pop2 pop3 etc
