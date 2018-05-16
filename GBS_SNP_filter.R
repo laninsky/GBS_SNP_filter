@@ -96,7 +96,7 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".vcf",sep="")) %i
 if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")) %in% filelist)) {
   popmap <- read.table("popmap.txt",header=FALSE,stringsAsFactors=FALSE)
   popnames <- unique(popmap[,2])
-  hwetablerow <- matrix(c("snp",popnames),nrow=1)
+  hwetable <- matrix(c("snp",popnames),nrow=1)
   for (i in 1:(dim(temp)[1])) { #5A: for each SNP
      temprow <- matrix(c(temp[i,1],popnames),nrow=1)
      temptemp <- temp[i,1:origcolnumber]      
@@ -117,21 +117,23 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")
         }  
       } #8B
     if(sum(temprow[2:length(temprow)]<as.numeric(parameters[4,1]))>as.numeric(parameters[6,1])) {
-        hwetablerow <- rbind(hwetable,temprow)
+        hwetable <- rbind(hwetable,temprow)
     }
   print(paste("Up to ",i," out of ",(dim(temp)[1]), " loci",sep=""))  
   }
   write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)
-  write(paste("The following loci will be removed as more than ",parameters[6,1]," populations had a HWE p-value of <",parameters[4,1],sep=""),logfilename,append=TRUE)
-  write.table(hwetablerow,logfilename,append=TRUE)
+  write(paste("The following loci (p-values given) will be removed as more than ",parameters[6,1]," populations had a HWE p-value of <",parameters[4,1],sep=""),logfilename,append=TRUE)
+  write.table(hwetable,logfilename,append=TRUE)
   
+  test <- temp %>% filter(., (!(`#CHROM` %in% (hwetable[2:(dim(hwetable)[2]),1]))))
+  write.table(headerrows,(paste(paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE)  
+  write_delim(temp[,1:origcolnumber],(paste(paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")),delim="\t",append=TRUE,col_names=TRUE)    
+  write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)  
+  write(paste("Following this filtering ",paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf has been written out, containing ",(dim(temp)[1])," SNPs and ", (origcolnumber-9), " samples",sep=""),logfilename,append=TRUE)
+
   
+
   
-  
-  
-  
-  write.table(temprow,(paste(basename,".hwe",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE,append=TRUE)
-  print(paste("Up to ",i," out of ",dim(temp)[1]," SNPs, calculating LD and HWE",sep=""))
 }  
 
 
