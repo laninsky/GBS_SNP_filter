@@ -120,8 +120,8 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")
       } #8B
     write.table(temprow,(paste(basename,".hwe",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE,append=TRUE)
     print(paste("Up to ",i," out of ",dim(temp)[1]," SNPs, calculating LD and HWE",sep=""))
-
-  
+  } #5B
+}  
 #RSQ is too computationally costly to do on the "full dataset". Instead, bring the HWE calculations up here,
 # After filtering on this, then can do Rsq at the end.
 
