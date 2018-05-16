@@ -127,16 +127,12 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")
     }     
     write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)
     write(paste("The following loci (p-values given) will be removed as more than ",parameters[6,1]," populations had a HWE p-value of <",parameters[4,1],sep=""),logfilename,append=TRUE)
-    write.table(hwetablebin,logfilename,append=TRUE,row.names=FALSE)
-
-    ### check the write statements and change test to temp if AG  - not sure if it should be 1:dim or 2:dim for this one     
-    test <- temp %>% filter(., (!(`#CHROM` %in% (hwetablebin[2:(dim(hwetablebin)[2]),1]))))
-    ###
+    write.table(hwetablebin,logfilename,append=TRUE,row.names=FALSE,col.names=FALSE)  
+    temp <- temp %>% filter(., (!(`#CHROM` %in% (hwetablebin[2:(dim(hwetablebin)[2]),1]))))
     write.table(headerrows,(paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE)
     write_delim(temp[,1:origcolnumber],(paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")),delim="\t",append=TRUE,col_names=TRUE)    
     write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)  
     write(paste("Following this filtering ",basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf has been written out, containing ",(dim(temp)[1])," SNPs and ", (origcolnumber-9), " samples",sep=""),logfilename,append=TRUE)  
-
   } else { #what to do if *.HWE does exist and you can use it to filter things    
     hwetable <- read.table((paste(basename,".HWE",sep="")),header=TRUE,stringsAsFactors=FALSE)
     hwetablebin <- NULL
@@ -163,16 +159,14 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")
   temp <- temp %>% mutate_at(vars((origcolnumber+1):(dim(temp)[2])),funs(as.numeric))
 }
 
-
-
 #RSQ is too computationally costly to do on the "full dataset". Instead, bring the HWE calculations up here,
-# After filtering on this, then can do Rsq at the end.
-
+# After filtering on this, then can do Rsq at the end. NEED TO ADD IN OPTIONS IF RSQ EXISTS
 
 if (!((paste(basename,".rsq",sep="")) %in% filelist)) { #4A: if *.rsq doesn't exist, creating this
   popmap <- read.table("popmap.txt",header=FALSE,stringsAsFactors=FALSE)
   popnames <- unique(popmap[,2])
   tablerow <- matrix(c("snp1","snp2",popnames),nrow=1)
+  ldbin <- tablerow
   write.table(tablerow,(paste(basename,".rsq",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE) 
   for (i in 1:(dim(temp)[1]-1)) { #5A: for SNP1
     for (j in (i+1):(dim(temp)[1])) { #6A for SNP2
@@ -206,10 +200,12 @@ if (!((paste(basename,".rsq",sep="")) %in% filelist)) { #4A: if *.rsq doesn't ex
         twobytwo[2,2] <- twobytwo[2,2] + tempmatrix[2,2]*oddsratio/(1+oddsratio)
         temprow[1,(k+2)] <- ((twobytwo[1,1]*twobytwo[2,2]-twobytwo[1,2]*twobytwo[2,1])^2)/(sum(twobytwo[,1])*sum(twobytwo[,2])*sum(twobytwo[1,])*sum(twobytwo[2,]))
         } #7B
-    write.table(temprow,(paste(basename,".rsq",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE,append=TRUE)  
+      write.table(temprow,(paste(basename,".rsq",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE,append=TRUE)
+      if(sum(unlist(temprow[1,3:length(temprow)])>as.numeric(parameters[5,1]),na.rm=TRUE)>as.numeric(parameters[6,1])) {
+        ldbin <- rbind(ldbin,temprow)
+      }  
     } #6B
   } #5B  
 } #4B  
-  
-# after all of this preamble, the actual code for doing   
+ 
   
