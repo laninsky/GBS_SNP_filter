@@ -93,7 +93,7 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".vcf",sep="")) %i
   temp <- temp %>% mutate_at(vars((origcolnumber+1):(dim(temp)[2])),funs(as.numeric))
 }  
 
-if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")) %in% filelist)) { 
+if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")) %in% filelist)) {
   popmap <- read.table("popmap.txt",header=FALSE,stringsAsFactors=FALSE)
   popnames <- unique(popmap[,2])
   hwetablerow <- matrix(c("snp",popnames),nrow=1)
@@ -116,10 +116,28 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")
           temprow[1,(k+1)] <- suppressWarnings(fisher.test(tempmatrix)$p.value)
         }  
       } #8B
-    write.table(temprow,(paste(basename,".hwe",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE,append=TRUE)
-    print(paste("Up to ",i," out of ",dim(temp)[1]," SNPs, calculating LD and HWE",sep=""))
-  } #5B
+    if(sum(temprow[2:length(temprow)]<as.numeric(parameters[4,1]))>as.numeric(parameters[6,1])) {
+        hwetablerow <- rbind(hwetable,temprow)
+    }
+  print(paste("Up to ",i," out of ",(dim(temp)[1]), " loci",sep=""))  
+  }
+  write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)
+  write(paste("The following loci will be removed as more than ",parameters[6,1]," populations had a HWE p-value of <",parameters[4,1],sep=""),logfilename,append=TRUE)
+  write.table(hwetablerow,logfilename,append=TRUE)
+  
+  
+  
+  
+  
+  
+  write.table(temprow,(paste(basename,".hwe",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE,append=TRUE)
+  print(paste("Up to ",i," out of ",dim(temp)[1]," SNPs, calculating LD and HWE",sep=""))
 }  
+
+
+
+
+
 #RSQ is too computationally costly to do on the "full dataset". Instead, bring the HWE calculations up here,
 # After filtering on this, then can do Rsq at the end.
 
