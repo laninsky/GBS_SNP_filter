@@ -66,25 +66,30 @@ if (!((paste(basename,".oneSNP.vcf",sep="")) %in% filelist)) {#3A: if oneSNP.vcf
     temp <- temp %>% mutate_at(vars((origcolnumber+1):(dim(temp)[2])),funs(as.numeric))
 } #3B
 
-*.X_Y.vcf
-
 if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".vcf",sep="")) %in% filelist)) { #4A: if dataset hasn't previously been filtered with the same parameters
   zerocounts <- unlist(lapply(1:(dim(temp)[1]),function(x){sum((temp[x,(origcolnumber+1):(dim(temp)[2])])==0)}))
   keeprows <- which(zerocounts<=((1-as.numeric(parameters[2,1]))*((dim(temp)[2])-origcolnumber)))
-  temp <- temp[keeprows,]                  
-                    
-  mutate(temp, zerocount = sum(which((origcolnumber+1):(dim(temp)[2]))==0)))
+  temp <- temp[keeprows,]
+  write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)
+  write(paste("Following filtering of SNPs not present in at least ",(as.numeric(parameters[2,1])*100),"% of samples, the following number of SNPs remained:",sep=""),logfilename,append=TRUE)
+  write((dim(temp)[1]),logfilename,append=TRUE)   
+  zerocounts <- unlist(lapply((origcolnumber+1):(dim(temp)[2]),function(x){sum((temp[1:(dim(temp)[1]),x])==0)}))
+  removecols <- which(zerocounts>((as.numeric(parameters[3,1]))*(dim(temp)[1])))                  
+  write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)
+  write(paste("The following samples have been removed because they have >",(as.numeric(parameters[3,1])*100), "% missing data:",sep=""),logfilename,append=TRUE)
+  write((names(temp)[(removecols+9)]),logfilename,append=TRUE)
+  temp <- select(temp,-one_of(names(temp)[c((removecols+9),(removecols+origcolnumber))]))
+  origcolnumber <- origcolnumber-length(removecols) 
+  write.table(headerrows,(paste(basename,".",parameters[2,1],"_",parameters[3,1],".vcf",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE)  
+  write_delim(temp[,1:origcolnumber],(paste(basename,".",parameters[2,1],"_",parameters[3,1],".vcf",sep="")),delim="\t",append=TRUE,col_names=TRUE)    
+  write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)  
+  write(paste("Following this filtering ",basename,".",parameters[2,1],"_",parameters[3,1],".vcf has been written out, containing ",(dim(temp)[1])," SNPs and ", (origcolnumber-9), " samples",sep=""),logfilename,append=TRUE)
+ 
+
   
   
-  mutate(sum(which((origcolnumber+1):(dim(temp)[2]))==0))
-  zerocounts <- unlist(lapply(1:(dim(temp)[1]),function(x){which(sum(temp[x,(origcolnumber+1):(dim(temp)[2])]==0)<(as.numeric(parameters[2,1])*((dim(temp)[2])-origcolnumber)))})) 
   
-  test <- filter(temp,length(which(temp[(origcolnumber+1):(dim(temp)[2])]==0))<(as.numeric(parameters[2,1])*((dim(temp)[2])-origcolnumber)))
-                 
-                 ,length(which(((origcolnumber+1):(dim(temp)[2]))==0)<((1-as.numeric(parameters[2,1]))*((dim(temp)[2])-origcolnumber))   
-
-
-
+  
 #RSQ is too computationally costly to do on the "full dataset". Instead, bring the HWE calculations up here, and per-population coverage
 # After filtering on this, then can do Rsq at the end.
 
