@@ -121,6 +121,11 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")
     }
   print(paste("Up to ",i," out of ",(dim(temp)[1]), " loci",sep=""))  
   }
+  
+  
+  
+  
+  
   write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)
   write(paste("The following loci (p-values given) will be removed as more than ",parameters[6,1]," populations had a HWE p-value of <",parameters[4,1],sep=""),logfilename,append=TRUE)
   write.table(hwetable,logfilename,append=TRUE)
@@ -129,14 +134,15 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")
   write.table(headerrows,(paste(paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE)  
   write_delim(temp[,1:origcolnumber],(paste(paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")),delim="\t",append=TRUE,col_names=TRUE)    
   write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)  
-  write(paste("Following this filtering ",paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf has been written out, containing ",(dim(temp)[1])," SNPs and ", (origcolnumber-9), " samples",sep=""),logfilename,append=TRUE)
-
-  
-
-  
-}  
-
-
+  write(paste("Following this filtering ",paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf has been written out, containing ",(dim(temp)[1])," SNPs and ", (origcolnumber-9), " samples",sep=""),logfilename,append=TRUE)  
+} else { 
+  headerrows <- read_tsv("header_row.txt",col_names=FALSE)
+  numberofheaders <- dim(headerrows)[1]
+  temp <- read_tsv((paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")),col_names=TRUE,skip=numberofheaders)
+  origcolnumber <- dim(temp)[2]
+  temp <- temp %>% mutate_at(vars(10:dim(temp)[2]), .funs = funs(cov = gsub(":.*","",gsub("^.*?:","", . )))) 
+  temp <- temp %>% mutate_at(vars((origcolnumber+1):(dim(temp)[2])),funs(as.numeric))
+}
 
 
 
