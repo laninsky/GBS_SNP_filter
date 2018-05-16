@@ -5,7 +5,7 @@ This bash/Rscript pipeline first filters for bi-allelic SNPs (and writes out \*.
 This pipeline requires you have a vcf file output from your favourite pipeline (e.g. ANGSD, ipyrad, stacks) etc., a file called popmap.txt which contains the population code for each individual, and a parameters file called GBS_SNP_filter.txt. These files are described below. It also requires you to have previously installed the R package tidyverse.
 
 # vcf file
-Header lines starting with "##" will be ignored. The script expects your first sample to be in column 10. Samplenames should not have the search term "\_cov" in them as this will be used for filtering overage within the script.
+Header lines starting with "##" will be ignored. The script expects your first sample to be in column 10. Samplenames should not have the search term "\_cov" in them as this will be used for filtering coverage within the script.
 ```
 ##fileformat=VCFv4.0
 ##fileDate=2018/05/09
