@@ -84,13 +84,45 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".vcf",sep="")) %i
   write_delim(temp[,1:origcolnumber],(paste(basename,".",parameters[2,1],"_",parameters[3,1],".vcf",sep="")),delim="\t",append=TRUE,col_names=TRUE)    
   write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)  
   write(paste("Following this filtering ",basename,".",parameters[2,1],"_",parameters[3,1],".vcf has been written out, containing ",(dim(temp)[1])," SNPs and ", (origcolnumber-9), " samples",sep=""),logfilename,append=TRUE)
- 
+} else { 
+  headerrows <- read_tsv("header_row.txt",col_names=FALSE)
+  numberofheaders <- dim(headerrows)[1]
+  temp <- read_tsv((paste(basename,".",parameters[2,1],"_",parameters[3,1],".vcf",sep="")),col_names=TRUE,skip=numberofheaders)
+  origcolnumber <- dim(temp)[2]
+  temp <- temp %>% mutate_at(vars(10:dim(temp)[2]), .funs = funs(cov = gsub(":.*","",gsub("^.*?:","", . )))) 
+  temp <- temp %>% mutate_at(vars((origcolnumber+1):(dim(temp)[2])),funs(as.numeric))
+}  
+  
+.X_Y.HWE
+
+if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")) %in% filelist)) { 
+  popmap <- read.table("popmap.txt",header=FALSE,stringsAsFactors=FALSE)
+  popnames <- unique(popmap[,2])
+  hwetablerow <- matrix(c("snp",popnames),nrow=1)
+  for (i in 1:(dim(temp)[1])) { #5A: for each SNP
+     temprow <- matrix(c(temp[i,1],popnames),nrow=1)
+     temptemp <- temp[i,1:origcolnumber]      
+      for (k in 1:length(popnames)) { #8A: for each population
+        temptemppop <- select(temptemp, which(names(temptemp) %in% (popmap[(which(popmap[,2]==popnames[k])),1])))
+        temptemppop <- mutate_at(temptemppop,vars(1:dim(temptemppop)[2]),funs(gsub(":.*","", . )))
+        tempmatrix <- matrix(0,ncol=2,nrow=3)
+        tempmatrix[1,1] <- length(which(temptemppop[1,]=="0/0"))
+        tempmatrix[2,1] <- length(which((temptemppop[1,]=="0/1" | temptemppop[1,]=="1/0")))
+        tempmatrix[3,1] <- length(which(temptemppop[1,]=="1/1"))
+        tempmatrix[1,2] <- ((((2*tempmatrix[1,1])+tempmatrix[2,1])/(2*sum(tempmatrix[,1])))^2)*sum(tempmatrix[,1])
+        tempmatrix[3,2] <- ((((2*tempmatrix[3,1])+tempmatrix[2,1])/(2*sum(tempmatrix[,1])))^2)*sum(tempmatrix[,1])
+        tempmatrix[2,2] <- 2*(((2*tempmatrix[1,1])+tempmatrix[2,1])/(2*sum(tempmatrix[,1])))*(((2*tempmatrix[3,1])+tempmatrix[2,1])/(2*sum(tempmatrix[,1])))*sum(tempmatrix[,1])
+        if (sum(tempmatrix[,1])==0) {
+          temprow[1,(k+1)] <- "NaN"
+        } else {  
+          temprow[1,(k+1)] <- suppressWarnings(fisher.test(tempmatrix)$p.value)
+        }  
+      } #8B
+    write.table(temprow,(paste(basename,".hwe",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE,append=TRUE)
+    print(paste("Up to ",i," out of ",dim(temp)[1]," SNPs, calculating LD and HWE",sep=""))
 
   
-  
-  
-  
-#RSQ is too computationally costly to do on the "full dataset". Instead, bring the HWE calculations up here, and per-population coverage
+#RSQ is too computationally costly to do on the "full dataset". Instead, bring the HWE calculations up here,
 # After filtering on this, then can do Rsq at the end.
 
 
@@ -98,9 +130,7 @@ if (!((paste(basename,".rsq",sep="")) %in% filelist)) { #4A: if *.rsq doesn't ex
   popmap <- read.table("popmap.txt",header=FALSE,stringsAsFactors=FALSE)
   popnames <- unique(popmap[,2])
   tablerow <- matrix(c("snp1","snp2",popnames),nrow=1)
-  hwetablerow <- matrix(c("snp",popnames),nrow=1)
   write.table(tablerow,(paste(basename,".rsq",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE) 
-  write.table(hwetablerow,(paste(basename,".hwe",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE) 
   for (i in 1:(dim(temp)[1]-1)) { #5A: for SNP1
     for (j in (i+1):(dim(temp)[1])) { #6A for SNP2
       temprow <- matrix(c(temp[i,1],temp[j,1],popnames),nrow=1)
@@ -135,26 +165,6 @@ if (!((paste(basename,".rsq",sep="")) %in% filelist)) { #4A: if *.rsq doesn't ex
         } #7B
     write.table(temprow,(paste(basename,".rsq",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE,append=TRUE)  
     } #6B
-    temprow <- matrix(c(temp[i,1],popnames),nrow=1)
-    temptemp <- temp[i,1:origcolnumber]      
-    for (k in 1:length(popnames)) { #8A: for each population
-      temptemppop <- select(temptemp, which(names(temptemp) %in% (popmap[(which(popmap[,2]==popnames[k])),1])))
-      temptemppop <- mutate_at(temptemppop,vars(1:dim(temptemppop)[2]),funs(gsub(":.*","", . )))
-      tempmatrix <- matrix(0,ncol=2,nrow=3)
-      tempmatrix[1,1] <- length(which(temptemppop[1,]=="0/0"))
-      tempmatrix[2,1] <- length(which((temptemppop[1,]=="0/1" | temptemppop[1,]=="1/0")))
-      tempmatrix[3,1] <- length(which(temptemppop[1,]=="1/1"))
-      tempmatrix[1,2] <- ((((2*tempmatrix[1,1])+tempmatrix[2,1])/(2*sum(tempmatrix[,1])))^2)*sum(tempmatrix[,1])
-      tempmatrix[3,2] <- ((((2*tempmatrix[3,1])+tempmatrix[2,1])/(2*sum(tempmatrix[,1])))^2)*sum(tempmatrix[,1])
-      tempmatrix[2,2] <- 2*(((2*tempmatrix[1,1])+tempmatrix[2,1])/(2*sum(tempmatrix[,1])))*(((2*tempmatrix[3,1])+tempmatrix[2,1])/(2*sum(tempmatrix[,1])))*sum(tempmatrix[,1])
-      if (sum(tempmatrix[,1])==0) {
-        temprow[1,(k+1)] <- "NaN"
-      } else {  
-        temprow[1,(k+1)] <- suppressWarnings(fisher.test(tempmatrix)$p.value)
-      }  
-    } #8B
-    write.table(temprow,(paste(basename,".hwe",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE,append=TRUE)
-    print(paste("Up to ",i," out of ",dim(temp)[1]," SNPs, calculating LD and HWE",sep=""))
   } #5B  
 } #4B  
   
