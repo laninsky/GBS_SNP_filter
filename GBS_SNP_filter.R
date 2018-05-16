@@ -1,5 +1,5 @@
 library(tidyverse)
-parameters <- read.table("GBS_SNP_filter.txt")
+parameters <- read.table("GBS_SNP_filter.txt",header=FALSE,stringsAsFactors=FALSE)
 basename <- gsub(".vcf","",parameters[1,1])
 filelist <- list.files()
 logfilename <- paste(basename,".log",sep="")
@@ -63,8 +63,25 @@ if (!((paste(basename,".oneSNP.vcf",sep="")) %in% filelist)) {#3A: if oneSNP.vcf
     temp <- read_tsv((paste(basename,".oneSNP.vcf",sep="")),col_names=TRUE,skip=numberofheaders)
     origcolnumber <- dim(temp)[2]
     temp <- temp %>% mutate_at(vars(10:dim(temp)[2]), .funs = funs(cov = gsub(":.*","",gsub("^.*?:","", . )))) 
-    temp <- temp %>%  mutate_at(vars((origcolnumber+1):(dim(temp)[2])),funs(as.numeric))
+    temp <- temp %>% mutate_at(vars((origcolnumber+1):(dim(temp)[2])),funs(as.numeric))
 } #3B
+
+*.X_Y.vcf
+
+if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".vcf",sep="")) %in% filelist)) { #4A: if dataset hasn't previously been filtered with the same parameters
+  zerocounts <- unlist(lapply(1:(dim(temp)[1]),function(x){sum((temp[x,(origcolnumber+1):(dim(temp)[2])])==0)}))
+  keeprows <- which(zerocounts<=((1-as.numeric(parameters[2,1]))*((dim(temp)[2])-origcolnumber)))
+  temp <- temp[keeprows,]                  
+                    
+  mutate(temp, zerocount = sum(which((origcolnumber+1):(dim(temp)[2]))==0)))
+  
+  
+  mutate(sum(which((origcolnumber+1):(dim(temp)[2]))==0))
+  zerocounts <- unlist(lapply(1:(dim(temp)[1]),function(x){which(sum(temp[x,(origcolnumber+1):(dim(temp)[2])]==0)<(as.numeric(parameters[2,1])*((dim(temp)[2])-origcolnumber)))})) 
+  
+  test <- filter(temp,length(which(temp[(origcolnumber+1):(dim(temp)[2])]==0))<(as.numeric(parameters[2,1])*((dim(temp)[2])-origcolnumber)))
+                 
+                 ,length(which(((origcolnumber+1):(dim(temp)[2]))==0)<((1-as.numeric(parameters[2,1]))*((dim(temp)[2])-origcolnumber))   
 
 
 
