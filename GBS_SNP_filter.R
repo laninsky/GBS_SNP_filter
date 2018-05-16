@@ -67,27 +67,23 @@ if (!((paste(basename,".oneSNP.vcf",sep="")) %in% filelist)) {#3A: if oneSNP.vcf
 } #3B
 
 if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".vcf",sep="")) %in% filelist)) { #4A: if dataset hasn't previously been filtered with the same parameters
-  if (!((paste(basename,".HWE",sep=""))) { # If locus specific HWE values have not already been printed out  
-    zerocounts <- unlist(lapply(1:(dim(temp)[1]),function(x){sum((temp[x,(origcolnumber+1):(dim(temp)[2])])==0)}))
-    keeprows <- which(zerocounts<=((1-as.numeric(parameters[2,1]))*((dim(temp)[2])-origcolnumber)))
-    temp <- temp[keeprows,]
-    write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)
-    write(paste("Following filtering of SNPs not present in at least ",(as.numeric(parameters[2,1])*100),"% of samples, the following number of SNPs remained:",sep=""),logfilename,append=TRUE)
-    write((dim(temp)[1]),logfilename,append=TRUE)   
-    zerocounts <- unlist(lapply((origcolnumber+1):(dim(temp)[2]),function(x){sum((temp[1:(dim(temp)[1]),x])==0)}))
-    removecols <- which(zerocounts>((as.numeric(parameters[3,1]))*(dim(temp)[1])))                  
-    write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)
-    write(paste("The following samples have been removed because they have >",(as.numeric(parameters[3,1])*100), "% missing data:",sep=""),logfilename,append=TRUE)
-    write((names(temp)[(removecols+9)]),logfilename,append=TRUE)
-    temp <- select(temp,-one_of(names(temp)[c((removecols+9),(removecols+origcolnumber))]))
-    origcolnumber <- origcolnumber-length(removecols) 
-    write.table(headerrows,(paste(basename,".",parameters[2,1],"_",parameters[3,1],".vcf",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE)  
-    write_delim(temp[,1:origcolnumber],(paste(basename,".",parameters[2,1],"_",parameters[3,1],".vcf",sep="")),delim="\t",append=TRUE,col_names=TRUE)    
-    write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)  
-    write(paste("Following this filtering ",basename,".",parameters[2,1],"_",parameters[3,1],".vcf has been written out, containing ",(dim(temp)[1])," SNPs and ", (origcolnumber-9), " samples",sep=""),logfilename,append=TRUE)
-  } else { #what to do if *.HWE does exist and you can use it to filter things
-    ##  
-  }
+  zerocounts <- unlist(lapply(1:(dim(temp)[1]),function(x){sum((temp[x,(origcolnumber+1):(dim(temp)[2])])==0)}))
+  keeprows <- which(zerocounts<=((1-as.numeric(parameters[2,1]))*((dim(temp)[2])-origcolnumber)))
+  temp <- temp[keeprows,]
+  write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)
+  write(paste("Following filtering of SNPs not present in at least ",(as.numeric(parameters[2,1])*100),"% of samples, the following number of SNPs remained:",sep=""),logfilename,append=TRUE)
+  write((dim(temp)[1]),logfilename,append=TRUE)   
+  zerocounts <- unlist(lapply((origcolnumber+1):(dim(temp)[2]),function(x){sum((temp[1:(dim(temp)[1]),x])==0)}))
+  removecols <- which(zerocounts>((as.numeric(parameters[3,1]))*(dim(temp)[1])))                  
+  write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)
+  write(paste("The following samples have been removed because they have >",(as.numeric(parameters[3,1])*100), "% missing data:",sep=""),logfilename,append=TRUE)
+  write((names(temp)[(removecols+9)]),logfilename,append=TRUE)
+  temp <- select(temp,-one_of(names(temp)[c((removecols+9),(removecols+origcolnumber))]))
+  origcolnumber <- origcolnumber-length(removecols) 
+  write.table(headerrows,(paste(basename,".",parameters[2,1],"_",parameters[3,1],".vcf",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE)  
+  write_delim(temp[,1:origcolnumber],(paste(basename,".",parameters[2,1],"_",parameters[3,1],".vcf",sep="")),delim="\t",append=TRUE,col_names=TRUE)    
+  write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)  
+  write(paste("Following this filtering ",basename,".",parameters[2,1],"_",parameters[3,1],".vcf has been written out, containing ",(dim(temp)[1])," SNPs and ", (origcolnumber-9), " samples",sep=""),logfilename,append=TRUE)
 } else { 
   headerrows <- read_tsv("header_row.txt",col_names=FALSE)
   numberofheaders <- dim(headerrows)[1]
@@ -98,13 +94,14 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".vcf",sep="")) %i
 }  
 
 if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")) %in% filelist)) {
-  popmap <- read.table("popmap.txt",header=FALSE,stringsAsFactors=FALSE)
-  popnames <- unique(popmap[,2])
-  hwetable <- matrix(c("snp",popnames),nrow=1)
-  hwetablebin <- hwetable
-  for (i in 1:(dim(temp)[1])) { #5A: for each SNP
-     temprow <- matrix(c(temp[i,1],popnames),nrow=1)
-     temptemp <- temp[i,1:origcolnumber]      
+  if (!((paste(basename,".HWE",sep=""))) { # If locus specific HWE values have not already been printed out  
+    popmap <- read.table("popmap.txt",header=FALSE,stringsAsFactors=FALSE)
+    popnames <- unique(popmap[,2])
+    hwetable <- matrix(c("snp",popnames),nrow=1)
+    hwetablebin <- hwetable
+    for (i in 1:(dim(temp)[1])) { #5A: for each SNP
+      temprow <- matrix(c(temp[i,1],popnames),nrow=1)
+      temptemp <- temp[i,1:origcolnumber]      
       for (k in 1:length(popnames)) { #8A: for each population
         temptemppop <- select(temptemp, which(names(temptemp) %in% (popmap[(which(popmap[,2]==popnames[k])),1])))
         temptemppop <- mutate_at(temptemppop,vars(1:dim(temptemppop)[2]),funs(gsub(":.*","", . )))
@@ -121,28 +118,27 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")
           temprow[1,(k+1)] <- suppressWarnings(fisher.test(tempmatrix)$p.value)
         }  
       } #8B
-    if(sum(temprow[2:length(temprow)]<as.numeric(parameters[4,1]))>as.numeric(parameters[6,1])) {
+      if(sum(temprow[2:length(temprow)]<as.numeric(parameters[4,1]))>as.numeric(parameters[6,1])) {
         hwetablebin <- rbind(hwetablebin,temprow)
-    }
-  print(paste("Up to ",i," out of ",(dim(temp)[1]), " loci",sep=""))  
+      }
+      print(paste("Up to ",i," out of ",(dim(temp)[1]), " loci",sep=""))  
+    }    
+    
+    
+    write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)
+    write(paste("The following loci (p-values given) will be removed as more than ",parameters[6,1]," populations had a HWE p-value of <",parameters[4,1],sep=""),logfilename,append=TRUE)
+    write.table(hwetablebin,logfilename,append=TRUE)
+  
+    test <- temp %>% filter(., (!(`#CHROM` %in% (hwetable[2:(dim(hwetablebin)[2]),1]))))
+    write.table(headerrows,(paste(paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE)  
+    write_delim(temp[,1:origcolnumber],(paste(paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")),delim="\t",append=TRUE,col_names=TRUE)    
+    write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)  
+    write(paste("Following this filtering ",paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf has been written out, containing ",(dim(temp)[1])," SNPs and ", (origcolnumber-9), " samples",sep=""),logfilename,append=TRUE)  
+
+  } else { #what to do if *.HWE does exist and you can use it to filter things
+    ##  
   }
-  
-  
-  
-  
-  
-  write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)
-  write(paste("The following loci (p-values given) will be removed as more than ",parameters[6,1]," populations had a HWE p-value of <",parameters[4,1],sep=""),logfilename,append=TRUE)
-  write.table(hwetablebin,logfilename,append=TRUE)
-  
-  test <- temp %>% filter(., (!(`#CHROM` %in% (hwetable[2:(dim(hwetablebin)[2]),1]))))
-  write.table(headerrows,(paste(paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE)  
-  write_delim(temp[,1:origcolnumber],(paste(paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")),delim="\t",append=TRUE,col_names=TRUE)    
-  write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)  
-  write(paste("Following this filtering ",paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf has been written out, containing ",(dim(temp)[1])," SNPs and ", (origcolnumber-9), " samples",sep=""),logfilename,append=TRUE)  
-} else {
-  
-  
+} else {  
   headerrows <- read_tsv("header_row.txt",col_names=FALSE)
   numberofheaders <- dim(headerrows)[1]
   temp <- read_tsv((paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")),col_names=TRUE,skip=numberofheaders)
