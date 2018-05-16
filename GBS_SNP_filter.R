@@ -94,10 +94,11 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".vcf",sep="")) %i
 }  
 
 if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")) %in% filelist)) {
-  if (!((paste(basename,".HWE",sep=""))) { # If locus specific HWE values have not already been printed out  
+  if (!((paste(basename,".HWE",sep="")) %in% filelist)) { # If locus specific HWE values have not already been printed out  
     popmap <- read.table("popmap.txt",header=FALSE,stringsAsFactors=FALSE)
     popnames <- unique(popmap[,2])
     hwetable <- matrix(c("snp",popnames),nrow=1)
+    write.table(hwetable,(paste(basename,".HWE",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE)  
     hwetablebin <- hwetable
     for (i in 1:(dim(temp)[1])) { #5A: for each SNP
       temprow <- matrix(c(temp[i,1],popnames),nrow=1)
@@ -121,6 +122,7 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")
       if(sum(temprow[2:length(temprow)]<as.numeric(parameters[4,1]))>as.numeric(parameters[6,1])) {
         hwetablebin <- rbind(hwetablebin,temprow)
       }
+      write.table(temprow,(paste(basename,".HWE",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE,append=TRUE)
       print(paste("Up to ",i," out of ",(dim(temp)[1]), " loci",sep=""))  
     }    
     
