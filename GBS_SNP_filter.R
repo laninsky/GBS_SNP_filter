@@ -128,7 +128,7 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")
     write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)
     write(paste("The following loci (p-values given) will be removed as more than ",parameters[6,1]," populations had a HWE p-value of <",parameters[4,1],sep=""),logfilename,append=TRUE)
     write.table(hwetablebin,logfilename,append=TRUE,row.names=FALSE,col.names=FALSE)  
-    temp <- temp %>% filter(., (!(`#CHROM` %in% (hwetablebin[2:(dim(hwetablebin)[2]),1]))))
+    temp <- temp %>% filter(., (!(`#CHROM` %in% (hwetablebin[2:(dim(hwetablebin)[1]),1]))))
     write.table(headerrows,(paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE)
     write_delim(temp[,1:origcolnumber],(paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")),delim="\t",append=TRUE,col_names=TRUE)    
     write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)  
@@ -144,7 +144,7 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")
     write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)
     write(paste("The following loci (p-values given) will be removed as more than ",parameters[6,1]," populations had a HWE p-value of <",parameters[4,1],sep=""),logfilename,append=TRUE)
     write.table(hwetablebin,logfilename,append=TRUE,row.names=FALSE)
-    temp <- temp %>% filter(., (!(`#CHROM` %in% (hwetablebin[1:(dim(hwetablebin)[2]),1]))))
+    temp <- temp %>% filter(., (!(`#CHROM` %in% (hwetablebin[1:(dim(hwetablebin)[1]),1]))))
     write.table(headerrows,(paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE)  
     write_delim(temp[,1:origcolnumber],(paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")),delim="\t",append=TRUE,col_names=TRUE)    
     write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)  
@@ -220,15 +220,16 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],"_",parameters[5,1
           twobytwo[2,2] <- 2*tempmatrix[3,3]+tempmatrix[3,2]+tempmatrix[2,3]
           oddsratio <- (twobytwo[1,1]/twobytwo[2,1])/(twobytwo[1,2]/twobytwo[2,2])
           if(is.na(oddsratio)) {
-            oddsratio <- 0
-          }
-          if(!(is.infinite(oddsratio))) {
-            twobytwo[1,1] <- twobytwo[1,1] + tempmatrix[2,2]*oddsratio/(1+oddsratio)
-            twobytwo[2,1] <- twobytwo[2,1] + tempmatrix[2,2]*1/(1+oddsratio)  
-            twobytwo[1,2] <- twobytwo[1,2] + tempmatrix[2,2]*1/(1+oddsratio) 
-            twobytwo[2,2] <- twobytwo[2,2] + tempmatrix[2,2]*oddsratio/(1+oddsratio)
+            return(oddsratio)
+          } else {
+            if(!(is.infinite(oddsratio))) {
+              twobytwo[1,1] <- twobytwo[1,1] + tempmatrix[2,2]*oddsratio/(1+oddsratio)
+              twobytwo[2,1] <- twobytwo[2,1] + tempmatrix[2,2]*1/(1+oddsratio)  
+              twobytwo[1,2] <- twobytwo[1,2] + tempmatrix[2,2]*1/(1+oddsratio) 
+              twobytwo[2,2] <- twobytwo[2,2] + tempmatrix[2,2]*oddsratio/(1+oddsratio)
+            }  
+            return(((twobytwo[1,1]*twobytwo[2,2]-twobytwo[1,2]*twobytwo[2,1])^2)/(sum(twobytwo[,1])*sum(twobytwo[,2])*sum(twobytwo[1,])*sum(twobytwo[2,])))
           }  
-          return(((twobytwo[1,1]*twobytwo[2,2]-twobytwo[1,2]*twobytwo[2,1])^2)/(sum(twobytwo[,1])*sum(twobytwo[,2])*sum(twobytwo[1,])*sum(twobytwo[2,])))
         }))
         zerocountpos <- which(zerocounts>as.numeric(parameters[5,1]))+i
         LDbintemp <- matrix(NA,nrow=length(zerocountpos),ncol=4)
@@ -250,25 +251,25 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],"_",parameters[5,1
     
     
 ## TOO SLOW. FIGURE OUT HOW TO VECTORIZE
-if (!((paste(basename,".rsq",sep="")) %in% filelist)) { #4A: if *.rsq doesn't exist, creating this
-  popmap <- read.table("popmap.txt",header=FALSE,stringsAsFactors=FALSE)
-  popnames <- unique(popmap[,2])
-  tablerow <- matrix(c("snp1","snp2",popnames),nrow=1)
-  ldbin <- tablerow
-  write.table(tablerow,(paste(basename,".rsq",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE) 
-  for (i in 1:(dim(temp)[1]-1)) { #5A: for SNP1
-    for (j in (i+1):(dim(temp)[1])) { #6A for SNP2
-      temprow <- matrix(c(temp[i,1],temp[j,1],popnames),nrow=1)
-      temptemp <- temp[c(i,j),1:origcolnumber]      
-      for (k in 1:length(popnames)) { #7A: for each population
-
-        } #7B
-      write.table(temprow,(paste(basename,".rsq",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE,append=TRUE)
-      if(sum(unlist(temprow[1,3:length(temprow)])>as.numeric(parameters[5,1]),na.rm=TRUE)>as.numeric(parameters[6,1])) {
-        ldbin <- rbind(ldbin,temprow)
-      }  
-    } #6B
-  } #5B  
-} #4B  
+#if (!((paste(basename,".rsq",sep="")) %in% filelist)) { #4A: if *.rsq doesn't exist, creating this
+ # popmap <- read.table("popmap.txt",header=FALSE,stringsAsFactors=FALSE)
+  #popnames <- unique(popmap[,2])
+#  tablerow <- matrix(c("snp1","snp2",popnames),nrow=1)
+ # ldbin <- tablerow
+  #write.table(tablerow,(paste(basename,".rsq",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE) 
+#  for (i in 1:(dim(temp)[1]-1)) { #5A: for SNP1
+ #   for (j in (i+1):(dim(temp)[1])) { #6A for SNP2
+  #    temprow <- matrix(c(temp[i,1],temp[j,1],popnames),nrow=1)
+   #   temptemp <- temp[c(i,j),1:origcolnumber]      
+    #  for (k in 1:length(popnames)) { #7A: for each population
+#
+ #       } #7B
+  #    write.table(temprow,(paste(basename,".rsq",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE,append=TRUE)
+   #   if(sum(unlist(temprow[1,3:length(temprow)])>as.numeric(parameters[5,1]),na.rm=TRUE)>as.numeric(parameters[6,1])) {
+    #    ldbin <- rbind(ldbin,temprow)
+     # }  
+   # } #6B
+ # } #5B  
+# } #4B  
  
   
