@@ -162,43 +162,83 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")
 #RSQ is too computationally costly to do on the "full dataset". Instead, bring the HWE calculations up here,
 # After filtering on this, then can do Rsq at the end. NEED TO ADD IN OPTIONS IF RSQ EXISTS
 
-if (!((paste(basename,".rsq",sep="")) %in% filelist)) { #4A: if *.rsq doesn't exist, creating this
-  popmap <- read.table("popmap.txt",header=FALSE,stringsAsFactors=FALSE)
-  popnames <- unique(popmap[,2])
-  for (k in 1:length(popnames)) {
-     tempK <- select(temp, c(`#CHROM`,which(names(temp) %in% (popmap[(which(popmap[,2]==popnames[k])),1]))))
-     tempK <- mutate_at(tempK,vars(2:dim(tempK)[2]),funs(gsub(":.*","", . )))     
-     tempK <- mutate(tempK, hom1 = rowSums(tempK[,2:(dim(tempK)[2])] == "1/1"))
-     tempK <- mutate(tempK, het = ((rowSums(tempK[,2:(dim(tempK)[2]-1)] == "0/1")+(rowSums(tempK[,2:(dim(tempK)[2]-1)] == "1/0")))))
-     tempK <- mutate(tempK, hom0 = rowSums(tempK[,2:(dim(tempK)[2])-2] == "0/0"))
-     tempK <- filter(tempK,(!(((hom1+het)==0))|((hom0+het)==0)))
-     for (i in 1:(dim(tempK)[1]-1) {
-       zerocounts <- unlist(lapply(((i+1):(dim(tempK)[1])),function(x){
-        tempmatrix <- matrix(0,ncol=3,nrow=3)
-        tempmatrix[1,1] <- length(which(tempK[i,]=="0/0" & tempK[x,]=="0/0"))
-        tempmatrix[2,1] <- length(which((tempK[i,]=="0/1" | tempK[i,]=="1/0") & tempK[x,]=="0/0"))
-        tempmatrix[3,1] <- length(which(tempK[i,]=="1/1" & tempK[x,]=="0/0"))
-        tempmatrix[1,2] <- length(which(tempK[i,]=="0/0" & (tempK[x,]=="0/1" | tempK[x,]=="1/0")))
-        tempmatrix[2,2] <- length(which((tempK[i,]=="0/1" | tempK[i,]=="1/0") & (tempK[x,]=="0/1" | tempK[x,]=="1/0")))
-        tempmatrix[3,2] <- length(which(tempK[i,]=="1/1" & (tempK[x,]=="0/1" | tempK[x,]=="1/0")))
-        tempmatrix[1,3] <- length(which(tempK[i,]=="0/0" & tempK[x,]=="1/1"))
-        tempmatrix[2,3] <- length(which((tempK[i,]=="0/1" | tempK[i,]=="1/0") & tempK[x,]=="1/1"))
-        tempmatrix[3,3] <- length(which(tempK[i,]=="1/1" & tempK[x,]=="1/1"))
-        twobytwo <- matrix(0,nrow=2,ncol=2)
-        twobytwo[1,1] <- 2*tempmatrix[1,1]+tempmatrix[2,1]+tempmatrix[1,2]
-        twobytwo[2,1] <- 2*tempmatrix[3,1]+tempmatrix[3,2]+tempmatrix[2,1]
-        twobytwo[1,2] <- 2*tempmatrix[1,3]+tempmatrix[1,2]+tempmatrix[2,3]
-        twobytwo[2,2] <- 2*tempmatrix[3,3]+tempmatrix[3,2]+tempmatrix[2,3]
-        oddsratio <- (twobytwo[1,1]/twobytwo[2,1])/(twobytwo[1,2]/twobytwo[2,2])
-        if(is.na(oddsratio)) {
-          oddsratio <- 0
+if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],"_",parameters[5,1],".rsq",sep="")) %in% filelist)) { #4A: if *.rsq doesn't exist, creating this
+  otherrsq <- strsplit(list.files(pattern=".rsq"),".rsq")
+  rsqfile <- NULL
+  for (i in 1:length(otherrsq)) {
+    eachfile <- unlist(strsplit(otherrsq[[i]],"_"))
+    suppressWarnings( if(is.na(as.numeric(eachfile[length(eachfile)]))) {
+      break
+    })  
+    if(as.numeric(eachfile[length(eachfile)])<=parameters[5,1]) {
+      suppressWarnings( if(is.na(as.numeric(eachfile[length(eachfile)]))) {
+        break
+      })  
+      if(as.numeric(eachfile[length(eachfile)-1])>=parameters[3,1]) {
+        suppressWarnings( if(is.na(as.numeric(paste(unlist(strsplit(eachfile[length(eachfile)-2],".",fixed=TRUE))[2:3],collapse=".")))) {
+          break
+        })  
+        if(as.numeric(paste(unlist(strsplit(eachfile[length(eachfile)-2],".",fixed=TRUE))[2:3],collapse="."))<=parameters[2,1]) {
+          rsqfile <- paste(otherrsq[[i]],".rsq",sep="")
+          break
         }
-        twobytwo[1,1] <- twobytwo[1,1] + tempmatrix[2,2]*oddsratio/(1+oddsratio)
-        twobytwo[2,1] <- twobytwo[2,1] + tempmatrix[2,2]*1/(1+oddsratio)  
-        twobytwo[1,2] <- twobytwo[1,2] + tempmatrix[2,2]*1/(1+oddsratio) 
-        twobytwo[2,2] <- twobytwo[2,2] + tempmatrix[2,2]*oddsratio/(1+oddsratio)
-        return(((twobytwo[1,1]*twobytwo[2,2]-twobytwo[1,2]*twobytwo[2,1])^2)/(sum(twobytwo[,1])*sum(twobytwo[,2])*sum(twobytwo[1,])*sum(twobytwo[2,])))
-        })) 
+      }
+    }
+  }  
+  if(!(is.null(rsqfile))) {  #5A If there are no other *rsq files that can be used...     
+    popmap <- read.table("popmap.txt",header=FALSE,stringsAsFactors=FALSE)
+    popnames <- unique(popmap[,2])
+    LDbin <- matrix(c("snp1","snp2","popname","rsq"),nrow=1)
+    write.table(LDbin,(paste(basename,".",parameters[2,1],"_",parameters[3,1],"_",parameters[5,1],".rsq",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE)    
+    for (k in 1:length(popnames)) { #6A for each pop
+      tempK <- select(temp, c(`#CHROM`,which(names(temp) %in% (popmap[(which(popmap[,2]==popnames[k])),1]))))
+      tempK <- mutate_at(tempK,vars(2:dim(tempK)[2]),funs(gsub(":.*","", . )))     
+      tempK <- mutate(tempK, hom1 = rowSums(tempK[,2:(dim(tempK)[2])] == "1/1"))
+      tempK <- mutate(tempK, het = ((rowSums(tempK[,2:(dim(tempK)[2]-1)] == "0/1")+(rowSums(tempK[,2:(dim(tempK)[2]-1)] == "1/0")))))
+      tempK <- mutate(tempK, hom0 = rowSums(tempK[,2:(dim(tempK)[2])-2] == "0/0"))
+      tempK <- filter(tempK,(!(((hom1+het)==0))|((hom0+het)==0)))
+      for (i in 1:(dim(tempK)[1]-1) { #7A for each locus
+        zerocounts <- unlist(lapply(((i+1):(dim(tempK)[1])),function(x){
+          tempmatrix <- matrix(0,ncol=3,nrow=3)
+          tempmatrix[1,1] <- length(which(tempK[i,]=="0/0" & tempK[x,]=="0/0"))
+          tempmatrix[2,1] <- length(which((tempK[i,]=="0/1" | tempK[i,]=="1/0") & tempK[x,]=="0/0"))
+          tempmatrix[3,1] <- length(which(tempK[i,]=="1/1" & tempK[x,]=="0/0"))
+          tempmatrix[1,2] <- length(which(tempK[i,]=="0/0" & (tempK[x,]=="0/1" | tempK[x,]=="1/0")))
+          tempmatrix[2,2] <- length(which((tempK[i,]=="0/1" | tempK[i,]=="1/0") & (tempK[x,]=="0/1" | tempK[x,]=="1/0")))
+          tempmatrix[3,2] <- length(which(tempK[i,]=="1/1" & (tempK[x,]=="0/1" | tempK[x,]=="1/0")))
+          tempmatrix[1,3] <- length(which(tempK[i,]=="0/0" & tempK[x,]=="1/1"))
+          tempmatrix[2,3] <- length(which((tempK[i,]=="0/1" | tempK[i,]=="1/0") & tempK[x,]=="1/1"))
+          tempmatrix[3,3] <- length(which(tempK[i,]=="1/1" & tempK[x,]=="1/1"))
+          twobytwo <- matrix(0,nrow=2,ncol=2)
+          twobytwo[1,1] <- 2*tempmatrix[1,1]+tempmatrix[2,1]+tempmatrix[1,2]
+          twobytwo[2,1] <- 2*tempmatrix[3,1]+tempmatrix[3,2]+tempmatrix[2,1]
+          twobytwo[1,2] <- 2*tempmatrix[1,3]+tempmatrix[1,2]+tempmatrix[2,3]
+          twobytwo[2,2] <- 2*tempmatrix[3,3]+tempmatrix[3,2]+tempmatrix[2,3]
+          oddsratio <- (twobytwo[1,1]/twobytwo[2,1])/(twobytwo[1,2]/twobytwo[2,2])
+          if(is.na(oddsratio)) {
+            oddsratio <- 0
+          }
+          if(!(is.infinite(oddsratio))) {
+            twobytwo[1,1] <- twobytwo[1,1] + tempmatrix[2,2]*oddsratio/(1+oddsratio)
+            twobytwo[2,1] <- twobytwo[2,1] + tempmatrix[2,2]*1/(1+oddsratio)  
+            twobytwo[1,2] <- twobytwo[1,2] + tempmatrix[2,2]*1/(1+oddsratio) 
+            twobytwo[2,2] <- twobytwo[2,2] + tempmatrix[2,2]*oddsratio/(1+oddsratio)
+          }  
+          return(((twobytwo[1,1]*twobytwo[2,2]-twobytwo[1,2]*twobytwo[2,1])^2)/(sum(twobytwo[,1])*sum(twobytwo[,2])*sum(twobytwo[1,])*sum(twobytwo[2,])))
+        }))
+        zerocountpos <- which(zerocounts>as.numeric(parameters[5,1]))
+        LDbintemp <- matrix(NA,nrow=length(zerocountpos),ncol=4)
+        LDbintemp[,1] <- as.matrix(tempK[i,1])
+        LDbintemp[,2] <- as.matrix(tempK[zerocountpos,1])
+        LDbintemp[,3] <- popnames[k]
+        LDbintemp[,4] <- zerocounts[zerocountpos]       
+        write.table(LDbintemp,(paste(basename,".",parameters[2,1],"_",parameters[3,1],"_",parameters[5,1],".rsq",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE,append=TRUE)
+    } else { #5AB
+       #what to do if there is an rsq table you can read in
+    } #5B   
+} else { #4AB: if the exact file needed exists
+    #what to do if there is the exact rsq table you need that can read in
+} #4B  
     
     
 ## TOO SLOW. FIGURE OUT HOW TO VECTORIZE
