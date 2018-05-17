@@ -201,7 +201,7 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],"_",parameters[5,1
       tempK <- filter(tempK,(!(((hom1+het)==0))|((hom0+het)==0)))
       totalcomps <- (dim(tempK)[1]*(dim(tempK)[1]-1))/2
       culmcompls <- 0
-      for (i in 1:(dim(tempK)[1]-1) { #7A for each locus
+      for (i in 1:(dim(tempK)[1]-1)) { #7A for each locus
         zerocounts <- unlist(lapply(((i+1):(dim(tempK)[1])),function(x){
           tempmatrix <- matrix(0,ncol=3,nrow=3)
           tempmatrix[1,1] <- length(which(tempK[i,]=="0/0" & tempK[x,]=="0/0"))
