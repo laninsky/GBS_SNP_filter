@@ -226,16 +226,19 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],"_",parameters[5,1
           }  
           return(((twobytwo[1,1]*twobytwo[2,2]-twobytwo[1,2]*twobytwo[2,1])^2)/(sum(twobytwo[,1])*sum(twobytwo[,2])*sum(twobytwo[1,])*sum(twobytwo[2,])))
         }))
-        zerocountpos <- which(zerocounts>as.numeric(parameters[5,1]))
+        zerocountpos <- which(zerocounts>as.numeric(parameters[5,1]))+i
         LDbintemp <- matrix(NA,nrow=length(zerocountpos),ncol=4)
         LDbintemp[,1] <- as.matrix(tempK[i,1])
         LDbintemp[,2] <- as.matrix(tempK[zerocountpos,1])
         LDbintemp[,3] <- popnames[k]
         LDbintemp[,4] <- zerocounts[zerocountpos]       
         write.table(LDbintemp,(paste(basename,".",parameters[2,1],"_",parameters[3,1],"_",parameters[5,1],".rsq",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE,append=TRUE)
-    } else { #5AB
+        
+      } #7B for each SNP
+    } #8B for each population       
+  } else { #5AB
        #what to do if there is an rsq table you can read in
-    } #5B   
+  } #5B   
 } else { #4AB: if the exact file needed exists
     #what to do if there is the exact rsq table you need that can read in
 } #4B  
