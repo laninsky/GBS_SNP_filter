@@ -238,8 +238,7 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],"_",parameters[5,1
         LDbintemp[,4] <- zerocounts[zerocountpos-i]       
         write.table(LDbintemp,(paste(basename,".",parameters[2,1],"_",parameters[3,1],"_",parameters[5,1],".rsq",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE,append=TRUE)
         culmcompls <- culmcompls+((dim(tempK)[1]-i))
-        paste((culmcompls/totalcomps*100),"% through ",totalcomps, " pairwise SNP comparisons for ", popnames[k]," (",k," out of ",length(popnames)," populations)",sep="")
-        
+        print(paste((culmcompls/totalcomps*100),"% through ",totalcomps, " pairwise SNP comparisons for ", popnames[k]," (",k," out of ",length(popnames)," populations)",sep=""))
       } #7B for each SNP
     } #6B for each population       
   } else { #5AB
