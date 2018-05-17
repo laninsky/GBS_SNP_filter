@@ -165,27 +165,29 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")
 if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],"_",parameters[5,1],".rsq",sep="")) %in% filelist)) { #4A: if *.rsq doesn't exist, creating this
   otherrsq <- strsplit(list.files(pattern=".rsq"),".rsq")
   rsqfile <- NULL
-  for (i in 1:length(otherrsq)) {
-    eachfile <- unlist(strsplit(otherrsq[[i]],"_"))
-    suppressWarnings( if(is.na(as.numeric(eachfile[length(eachfile)]))) {
-      break
-    })  
-    if(as.numeric(eachfile[length(eachfile)])<=parameters[5,1]) {
+  if(length(otherrsq)>0) {
+    for (i in 1:length(otherrsq)) {
+      eachfile <- unlist(strsplit(otherrsq[[i]],"_"))
       suppressWarnings( if(is.na(as.numeric(eachfile[length(eachfile)]))) {
         break
       })  
-      if(as.numeric(eachfile[length(eachfile)-1])>=parameters[3,1]) {
-        suppressWarnings( if(is.na(as.numeric(paste(unlist(strsplit(eachfile[length(eachfile)-2],".",fixed=TRUE))[2:3],collapse=".")))) {
+      if(as.numeric(eachfile[length(eachfile)])<=parameters[5,1]) {
+        suppressWarnings( if(is.na(as.numeric(eachfile[length(eachfile)]))) {
           break
         })  
-        if(as.numeric(paste(unlist(strsplit(eachfile[length(eachfile)-2],".",fixed=TRUE))[2:3],collapse="."))<=parameters[2,1]) {
-          rsqfile <- paste(otherrsq[[i]],".rsq",sep="")
-          break
+        if(as.numeric(eachfile[length(eachfile)-1])>=parameters[3,1]) {
+          suppressWarnings( if(is.na(as.numeric(paste(unlist(strsplit(eachfile[length(eachfile)-2],".",fixed=TRUE))[2:3],collapse=".")))) {
+            break
+          })  
+          if(as.numeric(paste(unlist(strsplit(eachfile[length(eachfile)-2],".",fixed=TRUE))[2:3],collapse="."))<=parameters[2,1]) {
+            rsqfile <- paste(otherrsq[[i]],".rsq",sep="")
+            break
+          }  
         }
       }
     }
   }  
-  if(!(is.null(rsqfile))) {  #5A If there are no other *rsq files that can be used...     
+  if(is.null(rsqfile)) {  #5A If there are no other *rsq files that can be used...     
     popmap <- read.table("popmap.txt",header=FALSE,stringsAsFactors=FALSE)
     popnames <- unique(popmap[,2])
     LDbin <- matrix(c("snp1","snp2","popname","rsq"),nrow=1)
@@ -239,7 +241,7 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],"_",parameters[5,1
         paste((culmcompls/totalcomps*100),"% through ",totalcomps, " pairwise SNP comparisons for ", popnames[k]," (",k," out of ",length(popnames)," populations)",sep="")
         
       } #7B for each SNP
-    } #8B for each population       
+    } #6B for each population       
   } else { #5AB
        #what to do if there is an rsq table you can read in
   } #5B   
