@@ -162,6 +162,12 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")
   temp <- temp %>% mutate_at(vars((origcolnumber+1):(dim(temp)[2])),funs(as.numeric))
 }
 
+
+robin.0.85_0.9_0.5
+
+
+
+
 #RSQ is too computationally costly to do on the "full dataset". Instead, bring the HWE calculations up here,
 # After filtering on this, then can do Rsq at the end. NEED TO ADD IN OPTIONS IF RSQ EXISTS
 
