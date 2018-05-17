@@ -197,6 +197,8 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],"_",parameters[5,1
       tempK <- mutate(tempK, het = ((rowSums(tempK[,2:(dim(tempK)[2]-1)] == "0/1")+(rowSums(tempK[,2:(dim(tempK)[2]-1)] == "1/0")))))
       tempK <- mutate(tempK, hom0 = rowSums(tempK[,2:(dim(tempK)[2])-2] == "0/0"))
       tempK <- filter(tempK,(!(((hom1+het)==0))|((hom0+het)==0)))
+      totalcomps <- (dim(tempK)[1]*(dim(tempK)[1]-1))/2
+      culmcompls <- 0
       for (i in 1:(dim(tempK)[1]-1) { #7A for each locus
         zerocounts <- unlist(lapply(((i+1):(dim(tempK)[1])),function(x){
           tempmatrix <- matrix(0,ncol=3,nrow=3)
@@ -231,8 +233,10 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],"_",parameters[5,1
         LDbintemp[,1] <- as.matrix(tempK[i,1])
         LDbintemp[,2] <- as.matrix(tempK[zerocountpos,1])
         LDbintemp[,3] <- popnames[k]
-        LDbintemp[,4] <- zerocounts[zerocountpos]       
+        LDbintemp[,4] <- zerocounts[zerocountpos-i]       
         write.table(LDbintemp,(paste(basename,".",parameters[2,1],"_",parameters[3,1],"_",parameters[5,1],".rsq",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE,append=TRUE)
+        culmcompls <- culmcompls+((dim(tempK)[1]-i))
+        paste((culmcompls/totalcomps*100),"% through ",totalcomps, " pairwise SNP comparisons for ", popnames[k]," (",k," out of ",length(popnames)," populations)",sep="")
         
       } #7B for each SNP
     } #8B for each population       
