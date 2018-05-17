@@ -1,4 +1,6 @@
-library(tidyverse)
+library(dplyr)
+library(readr)
+#library(tidyverse) # I've had issues loading library(tidyverse) and R crashing using the sbatch syste
 parameters <- read.table("GBS_SNP_filter.txt",header=FALSE,stringsAsFactors=FALSE)
 basename <- gsub(".vcf","",parameters[1,1])
 filelist <- list.files()
