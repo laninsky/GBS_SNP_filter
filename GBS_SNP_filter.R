@@ -165,6 +165,18 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")
 #RSQ is too computationally costly to do on the "full dataset". Instead, bring the HWE calculations up here,
 # After filtering on this, then can do Rsq at the end. NEED TO ADD IN OPTIONS IF RSQ EXISTS
 
+
+
+
+
+
+
+
+
+
+
+#################################TRYING VCF TOOLS INSTEAD#################
+
 if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],"_",parameters[5,1],".rsq",sep="")) %in% filelist)) { #4A: if *.rsq doesn't exist, creating this
   otherrsq <- strsplit(list.files(pattern=".rsq"),".rsq")
   rsqfile <- NULL
