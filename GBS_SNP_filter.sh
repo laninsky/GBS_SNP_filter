@@ -13,22 +13,12 @@ fi
 
 Rscript GBS_SNP_filter_HWE.R
 
-N=`tail -n 1 GBS_SNP_filter.txt`
 minrsq=`head -n 5 GBS_SNP_filter.txt | tail -n 1`
 for i in `ls *pop.vcf`; do
-    (
     ldname=`echo $i | sed 's/.vcf//g'`
-    vcftools --vcf $i --geno-r2 --min-r2 $minrsq --out $ldname
-  # .. do your stuff here
-        echo "starting task $i.."
-        sleep $(( (RANDOM % 3) + 1))
-    ) &
-
-    # allow only to execute $N jobs in parallel
-    if [[ $(jobs -r -p | wc -l) -gt $N ]]; then
-        # wait only for first job
-        wait -n
-    fi
-
+    vcftools --vcf $i --plink --out $ldname.plink
+    plink --r2 --ld-window-r2 $minrsq --file $ldname.plink --out $ldname
+    rm -rf *plink*
+    rm -rf *nosex
 done
-wait
+
