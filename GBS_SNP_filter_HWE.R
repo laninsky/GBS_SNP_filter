@@ -96,6 +96,7 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".vcf",sep="")) %i
   temp <- temp %>% mutate_at(vars((origcolnumber+1):(dim(temp)[2])),funs(as.numeric))
 }  
 
+#Make into an array
 if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")) %in% filelist)) {
   if (!((paste(basename,".HWE",sep="")) %in% filelist)) { # If locus specific HWE values have not already been printed out  
     popmap <- read.table("popmap.txt",header=FALSE,stringsAsFactors=FALSE)
