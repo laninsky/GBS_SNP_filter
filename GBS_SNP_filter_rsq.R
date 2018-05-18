@@ -28,4 +28,7 @@ for (k in 1:length(popnames)) {
 }
 names(SNP_record) <- c("Locus_1","Locus_2",popnames)
 
-as.numeric(parameters[6,1])
+SNP_record <- filter(SNP_record, (dim(SNP_record)[2]-2)-rowSums(is.na(SNP_record[,3:(dim(SNP_record)[2])]))>=as.numeric(parameters[6,1]))
+
+#Probably want to write out this SNP list
+#Then want to use it to filter out the SNPs that are in linkage, keeping the SNP with the highest coverage. When the SNP is ditched, need to check SNP_record and get rid of any rows where the ditched SNP also occurs.
