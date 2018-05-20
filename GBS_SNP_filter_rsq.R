@@ -37,10 +37,20 @@ SNP_record <- filter(SNP_record, (dim(SNP_record)[2]-2)-rowSums(is.na(SNP_record
 j <- 1
 SNP_length <- dim(SNP_record)[1]
 while (j <= SNP_length) {
-  which(temp$`#CHROM` %in% SNP_record[j,1])
-  which(temp$`#CHROM` %in% SNP_record[j,2])
-  
-  
+  zero_one_count <- sum(temp[(which(temp$`#CHROM` %in% SNP_record[j,1])),((origcolnumber+1):(dim(temp)[2]))]==0)
+  zero_two_count <- sum(temp[(which(temp$`#CHROM` %in% SNP_record[j,2])),((origcolnumber+1):(dim(temp)[2]))]==0)
+  if (zero_one_count > zero_two_count) {
+    # record SNP_length, and that [j,1] is being removed. Remove [j,1] from temp, and then delete any further temp[j,1]s from SNP_record
+  } else {
+    if (zero_two_count > zero_one_count) {
+      # same but [j,2]
+    } else {
+      if (zero_two_count==zero_one_count) {
+        #if they do equal each other, then we need to do overall coverage
+        # othrwise take [j,2] out of the list
+        
+        
+        
   
 
 #Probably want to write out this SNP list
