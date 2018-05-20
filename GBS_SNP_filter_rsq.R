@@ -37,6 +37,9 @@ SNP_record <- filter(SNP_record, (dim(SNP_record)[2]-2)-rowSums(is.na(SNP_record
 j <- 1
 SNP_length <- dim(SNP_record)[1]
 while (j <= SNP_length) {
+  which(temp$`#CHROM` %in% SNP_record[j,1])
+  which(temp$`#CHROM` %in% SNP_record[j,2])
+  
   
   
 
