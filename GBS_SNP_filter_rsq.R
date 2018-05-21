@@ -47,7 +47,7 @@ while (j <= SNP_length) {
     temp <- temp[-(which(temp$`#CHROM` %in% SNP_record[j,1])),]
     SNP_record[j,(dim(SNP_record)[2])] <- SNP_record[j,1]    
     todelete <- c((which(SNP_record[,1] %in% SNP_record[j,1])),(which(SNP_record[,2] %in% SNP_record[j,1])))
-    
+    todelete[(!(todelete %in% j))]
     
     SNP_record[j,2]
     # record SNP_length, and that [j,1] is being removed. Remove [j,1] from temp, and then delete any further temp[j,1]s from SNP_record
