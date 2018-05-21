@@ -48,14 +48,20 @@ while (j <= SNP_length) {
     SNP_record[j,(dim(SNP_record)[2])] <- SNP_record[j,1]    
     todelete <- c((which(SNP_record[,1] %in% SNP_record[j,1])),(which(SNP_record[,2] %in% SNP_record[j,1])))    
     if(length(todelete[(!(todelete %in% j))])>0) {
-        SNP_record <- SNP_record[(todelete[(!(todelete %in% j))]),]
-    } else {
-      j <- j + 1
-    }  
+        todelete <- todelete[(!(todelete %in% j))]
+        SNP_record <- SNP_record[-todelete,]
+    }
+    j <- j + 1  
   } else {
     if (zero_two_count > zero_one_count) {
-      # same but [j,2]
-      j <- j + 1
+      temp <- temp[-(which(temp$`#CHROM` %in% SNP_record[j,2])),]
+      SNP_record[j,(dim(SNP_record)[2])] <- SNP_record[j,2]    
+      todelete <- c((which(SNP_record[,1] %in% SNP_record[j,2])),(which(SNP_record[,2] %in% SNP_record[j,2])))    
+      if(length(todelete[(!(todelete %in% j))])>0) {
+          todelete <- todelete[(!(todelete %in% j))]
+          SNP_record <- SNP_record[-todelete,]
+      }
+      j <- j + 1  
     } else {
       if (zero_two_count==zero_one_count) {
         #if they do equal each other, then we need to do overall coverage
