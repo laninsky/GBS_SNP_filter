@@ -47,7 +47,7 @@ while (j <= SNP_length) {
     temp <- temp[-(which(temp$`#CHROM` %in% SNP_record[j,1])),]
     SNP_record[j,(dim(SNP_record)[2])] <- SNP_record[j,1]    
     todelete <- c((which(SNP_record[,1] %in% SNP_record[j,1])),(which(SNP_record[,2] %in% SNP_record[j,1])))    
-    if(length(todelete[(!(todelete %in% j))])>0) {
+    if(length(todelete[(!(todelete <= j))])>0) {
         todelete <- todelete[(!(todelete <= j))]
         SNP_record <- SNP_record[-todelete,]
     }
@@ -57,7 +57,7 @@ while (j <= SNP_length) {
       temp <- temp[-(which(temp$`#CHROM` %in% SNP_record[j,2])),]
       SNP_record[j,(dim(SNP_record)[2])] <- SNP_record[j,2]    
       todelete <- c((which(SNP_record[,1] %in% SNP_record[j,2])),(which(SNP_record[,2] %in% SNP_record[j,2])))    
-      if(length(todelete[(!(todelete %in% j))])>0) {
+      if(length(todelete[(!(todelete <= j))])>0) {
           todelete <- todelete[(!(todelete <= j))]
           SNP_record <- SNP_record[-todelete,]
       }
@@ -70,7 +70,7 @@ while (j <= SNP_length) {
             temp <- temp[-(which(temp$`#CHROM` %in% SNP_record[j,1])),]
             SNP_record[j,(dim(SNP_record)[2])] <- SNP_record[j,1]    
             todelete <- c((which(SNP_record[,1] %in% SNP_record[j,1])),(which(SNP_record[,2] %in% SNP_record[j,1])))    
-            if(length(todelete[(!(todelete %in% j))])>0) {
+            if(length(todelete[(!(todelete <= j))])>0) {
               todelete <- todelete[(!(todelete <= j))]
               SNP_record <- SNP_record[-todelete,]
             }
@@ -80,7 +80,7 @@ while (j <= SNP_length) {
               temp <- temp[-(which(temp$`#CHROM` %in% SNP_record[j,2])),]
               SNP_record[j,(dim(SNP_record)[2])] <- SNP_record[j,2]    
               todelete <- c((which(SNP_record[,1] %in% SNP_record[j,2])),(which(SNP_record[,2] %in% SNP_record[j,2])))    
-              if(length(todelete[(!(todelete %in% j))])>0) {
+              if(length(todelete[(!(todelete <= j))])>0) {
                  todelete <- todelete[(!(todelete <= j))]
                  SNP_record <- SNP_record[-todelete,]
               }
@@ -90,7 +90,7 @@ while (j <= SNP_length) {
                  temp <- temp[-(which(temp$`#CHROM` %in% SNP_record[j,2])),]
                  SNP_record[j,(dim(SNP_record)[2])] <- SNP_record[j,2]    
                  todelete <- c((which(SNP_record[,1] %in% SNP_record[j,2])),(which(SNP_record[,2] %in% SNP_record[j,2])))    
-                 if(length(todelete[(!(todelete %in% j))])>0) {
+                 if(length(todelete[(!(todelete <= j))])>0) {
                    todelete <- todelete[(!(todelete <= j))]
                    SNP_record <- SNP_record[-todelete,]
                  }
