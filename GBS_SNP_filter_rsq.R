@@ -105,7 +105,9 @@ while (j <= SNP_length) {
   SNP_length <- dim(SNP_record)[1]
   if(is.na(SNP_record[(j-1),8])) {
     break
-  }  
+  }
+  #OK, SO MAYBE WE WRITE OUT THIS TABLE. DOUBLE CHECK THINGS ARE NOT WEIRD, BUT ACTUALLY THAT SHOULD BE IT?
+  # CHECK NOTHING IS IN THE LEFT AND RIGHT COLUMN
 }    
 
 
