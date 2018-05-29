@@ -94,6 +94,7 @@ while (j <= SNP_length) {
                    todelete <- todelete[(!(todelete %in% j))]
                    SNP_record <- SNP_record[-todelete,]
                  }
+                 j <- j + 1              
                }
              }
           }
