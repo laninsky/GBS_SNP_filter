@@ -100,7 +100,9 @@ while (j <= SNP_length) {
           }
        }  
     }
-  }  
+  }
+  print(paste("Up to ",j," out of ",dim(SNP_record)[1]," pairwise LD comparisons",sep=""))
+  SNP_length <- dim(SNP_record)[1]
 }    
     #if they do equal each other, then we need to do overall coverage
         # othrwise take [j,2] out of the list
