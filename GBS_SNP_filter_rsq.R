@@ -48,7 +48,7 @@ while (j <= SNP_length) {
     SNP_record[j,(dim(SNP_record)[2])] <- SNP_record[j,1]    
     todelete <- c((which(SNP_record[,1] %in% SNP_record[j,1])),(which(SNP_record[,2] %in% SNP_record[j,1])))    
     if(length(todelete[(!(todelete %in% j))])>0) {
-        todelete <- todelete[(!(todelete %in% j))]
+        todelete <- todelete[(!(todelete <= j))]
         SNP_record <- SNP_record[-todelete,]
     }
     j <- j + 1  
@@ -58,7 +58,7 @@ while (j <= SNP_length) {
       SNP_record[j,(dim(SNP_record)[2])] <- SNP_record[j,2]    
       todelete <- c((which(SNP_record[,1] %in% SNP_record[j,2])),(which(SNP_record[,2] %in% SNP_record[j,2])))    
       if(length(todelete[(!(todelete %in% j))])>0) {
-          todelete <- todelete[(!(todelete %in% j))]
+          todelete <- todelete[(!(todelete <= j))]
           SNP_record <- SNP_record[-todelete,]
       }
       j <- j + 1  
@@ -71,7 +71,7 @@ while (j <= SNP_length) {
             SNP_record[j,(dim(SNP_record)[2])] <- SNP_record[j,1]    
             todelete <- c((which(SNP_record[,1] %in% SNP_record[j,1])),(which(SNP_record[,2] %in% SNP_record[j,1])))    
             if(length(todelete[(!(todelete %in% j))])>0) {
-              todelete <- todelete[(!(todelete %in% j))]
+              todelete <- todelete[(!(todelete <= j))]
               SNP_record <- SNP_record[-todelete,]
             }
             j <- j + 1  
@@ -81,7 +81,7 @@ while (j <= SNP_length) {
               SNP_record[j,(dim(SNP_record)[2])] <- SNP_record[j,2]    
               todelete <- c((which(SNP_record[,1] %in% SNP_record[j,2])),(which(SNP_record[,2] %in% SNP_record[j,2])))    
               if(length(todelete[(!(todelete %in% j))])>0) {
-                 todelete <- todelete[(!(todelete %in% j))]
+                 todelete <- todelete[(!(todelete <= j))]
                  SNP_record <- SNP_record[-todelete,]
               }
               j <- j + 1  
@@ -91,7 +91,7 @@ while (j <= SNP_length) {
                  SNP_record[j,(dim(SNP_record)[2])] <- SNP_record[j,2]    
                  todelete <- c((which(SNP_record[,1] %in% SNP_record[j,2])),(which(SNP_record[,2] %in% SNP_record[j,2])))    
                  if(length(todelete[(!(todelete %in% j))])>0) {
-                   todelete <- todelete[(!(todelete %in% j))]
+                   todelete <- todelete[(!(todelete <= j))]
                    SNP_record <- SNP_record[-todelete,]
                  }
                  j <- j + 1              
@@ -107,12 +107,7 @@ while (j <= SNP_length) {
     break
   }  
 }    
-    #if they do equal each other, then we need to do overall coverage
-        # othrwise take [j,2] out of the list
-        
-        
-        
-  
+
 
 #Probably want to write out this SNP list
 #Then want to use it to filter out the SNPs that are in linkage, keeping the SNP with the highest coverage. When the SNP is ditched, need to check SNP_record and get rid of any rows where the ditched SNP also occurs.
