@@ -64,7 +64,44 @@ while (j <= SNP_length) {
       j <- j + 1  
     } else {
       if (zero_two_count==zero_one_count) {
-        #if they do equal each other, then we need to do overall coverage
+        zero_one_count <- sum(temp[(which(temp$`#CHROM` %in% SNP_record[j,1])),((origcolnumber+1):(dim(temp)[2]))])
+        zero_two_count <- sum(temp[(which(temp$`#CHROM` %in% SNP_record[j,2])),((origcolnumber+1):(dim(temp)[2]))])         
+         if (zero_one_count < zero_two_count) {
+            temp <- temp[-(which(temp$`#CHROM` %in% SNP_record[j,1])),]
+            SNP_record[j,(dim(SNP_record)[2])] <- SNP_record[j,1]    
+            todelete <- c((which(SNP_record[,1] %in% SNP_record[j,1])),(which(SNP_record[,2] %in% SNP_record[j,1])))    
+            if(length(todelete[(!(todelete %in% j))])>0) {
+              todelete <- todelete[(!(todelete %in% j))]
+              SNP_record <- SNP_record[-todelete,]
+            }
+            j <- j + 1  
+          } else {
+            if (zero_two_count < zero_one_count) {
+              temp <- temp[-(which(temp$`#CHROM` %in% SNP_record[j,2])),]
+              SNP_record[j,(dim(SNP_record)[2])] <- SNP_record[j,2]    
+              todelete <- c((which(SNP_record[,1] %in% SNP_record[j,2])),(which(SNP_record[,2] %in% SNP_record[j,2])))    
+              if(length(todelete[(!(todelete %in% j))])>0) {
+                 todelete <- todelete[(!(todelete %in% j))]
+                 SNP_record <- SNP_record[-todelete,]
+              }
+              j <- j + 1  
+            } else {
+              if (zero_two_count==zero_one_count) {
+                 temp <- temp[-(which(temp$`#CHROM` %in% SNP_record[j,2])),]
+                 SNP_record[j,(dim(SNP_record)[2])] <- SNP_record[j,2]    
+                 todelete <- c((which(SNP_record[,1] %in% SNP_record[j,2])),(which(SNP_record[,2] %in% SNP_record[j,2])))    
+                 if(length(todelete[(!(todelete %in% j))])>0) {
+                   todelete <- todelete[(!(todelete %in% j))]
+                   SNP_record <- SNP_record[-todelete,]
+                 }
+               }
+             }
+          }
+       }  
+    }
+  }  
+}    
+    #if they do equal each other, then we need to do overall coverage
         # othrwise take [j,2] out of the list
         
         
