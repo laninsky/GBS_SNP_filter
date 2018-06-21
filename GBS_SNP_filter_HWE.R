@@ -145,5 +145,27 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")
   write.table(headerrows,(paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE)
   write_delim(temp[,1:origcolnumber],(paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")),delim="\t",append=TRUE,col_names=TRUE)    
   write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)  
-  write(paste("Following this filtering ",basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf has been written out, containing ",(dim(temp)[1])," SNPs and ", (origcolnumber-9), " samples",sep=""),logfilename,append=TRUE)  
-} 
+  write(paste("Following this filtering ",basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf has been written out, containing ",(dim(temp)[1])," SNPs and ", (origcolnumber-9), " samples",sep=""),logfilename,append=TRUE)   
+} else {  #5AB
+  headerrows <- read_tsv("header_row.txt",col_names=FALSE)
+  numberofheaders <- dim(headerrows)[1]
+  temp <- read_tsv((paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")),col_names=TRUE,skip=numberofheaders)
+  origcolnumber <- dim(temp)[2]
+  temp <- temp %>% mutate_at(vars(10:dim(temp)[2]), .funs = funs(cov = gsub(":.*","",gsub("^.*?:","", . )))) 
+  temp <- temp %>% mutate_at(vars((origcolnumber+1):(dim(temp)[2])),funs(as.numeric))
+} #5B
+
+
+popmap <- read.table("popmap.txt",header=FALSE,stringsAsFactors=FALSE)
+popnames <- unique(popmap[,2])
+for (k in 1:length(popnames)) {
+   tempK <- select(temp, c((1:10),which(names(temp) %in% (popmap[(which(popmap[,2]==popnames[k])),1]))))
+   origcolnumber <- dim(tempK)[2]
+   tempK <- mutate_at(tempK,vars(10:origcolnumber),.funs = funs(genotype = gsub(":.*","", . )))     
+   tempK <- mutate(tempK, hom1 = rowSums(tempK[,(origcolnumber+1):(dim(tempK)[2])] == "1/1"))
+   tempK <- mutate(tempK, het = ((rowSums(tempK[,(origcolnumber+1):(dim(tempK)[2]-1)] == "0/1")+(rowSums(tempK[,(origcolnumber+1):(dim(tempK)[2]-1)] == "1/0")))))
+   tempK <- mutate(tempK, hom0 = rowSums(tempK[,(origcolnumber+1):(dim(tempK)[2])-2] == "0/0"))
+   tempK <- filter(tempK,(!(((hom1+het)==0))|((hom0+het)==0)))
+   write.table(headerrows,(paste(basename,".",parameters[2,1],"_",parameters[3,1],".",popnames[k],".pop.vcf",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE)  
+   write_delim(tempK[,1:origcolnumber],(paste(basename,".",parameters[2,1],"_",parameters[3,1],".",popnames[k],".pop.vcf",sep="")),delim="\t",append=TRUE,col_names=TRUE)    
+}
