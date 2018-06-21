@@ -124,68 +124,22 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")
       hwetable <- cbind(hwetable,hwetablepvalues)
     } #8B
     hwetable <- cbind(temp[,1],hwetable)
- 
-      
-      
-
-    #maybe for later
-    hwetable <- matrix(ncol=length(),nrow=)
-    write.table(hwetable,(paste(basename,".HWE",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE)      
-    write.table(temprow,(paste(basename,".HWE",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE,append=TRUE)
-      if(sum(temprow[2:length(temprow)]<as.numeric(parameters[4,1]))>as.numeric(parameters[6,1])) {
-        hwetablebin <- rbind(hwetablebin,temprow)
-      }
-
-    
-    
-    #Make into an array
-
-
-    write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)
-    write(paste("The following loci (p-values given) will be removed as more than ",parameters[6,1]," populations had a HWE p-value of <",parameters[4,1],sep=""),logfilename,append=TRUE)
-    write.table(hwetablebin,logfilename,append=TRUE,row.names=FALSE,col.names=FALSE)  
-    temp <- temp %>% filter(., (!(`#CHROM` %in% (hwetablebin[2:(dim(hwetablebin)[1]),1]))))
-    write.table(headerrows,(paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE)
-    write_delim(temp[,1:origcolnumber],(paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")),delim="\t",append=TRUE,col_names=TRUE)    
-    write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)  
-    write(paste("Following this filtering ",basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf has been written out, containing ",(dim(temp)[1])," SNPs and ", (origcolnumber-9), " samples",sep=""),logfilename,append=TRUE)  
-  } else { #what to do if *.HWE does exist and you can use it to filter things    
-    hwetable <- read.table((paste(basename,".HWE",sep="")),header=TRUE,stringsAsFactors=FALSE)
-    hwetablebin <- NULL
-    for (i in 1:(dim(hwetable)[1])) {
-        if(sum(hwetable[i,2:(dim(hwetable)[2])]<as.numeric(parameters[4,1]))>as.numeric(parameters[6,1])) {
-            hwetablebin <- rbind(hwetablebin,hwetable[i,])
-        }  
-    }
-    write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)
-    write(paste("The following loci (p-values given) will be removed as more than ",parameters[6,1]," populations had a HWE p-value of <",parameters[4,1],sep=""),logfilename,append=TRUE)
-    write.table(hwetablebin,logfilename,append=TRUE,row.names=FALSE)
-    temp <- temp %>% filter(., (!(`#CHROM` %in% (hwetablebin[1:(dim(hwetablebin)[1]),1]))))
-    write.table(headerrows,(paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE)  
-    write_delim(temp[,1:origcolnumber],(paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")),delim="\t",append=TRUE,col_names=TRUE)    
-    write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)  
-    write(paste("Following this filtering ",basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf has been written out, containing ",(dim(temp)[1])," SNPs and ", (origcolnumber-9), " samples",sep=""),logfilename,append=TRUE)     
-  }
-} else {  
-  headerrows <- read_tsv("header_row.txt",col_names=FALSE)
-  numberofheaders <- dim(headerrows)[1]
-  temp <- read_tsv((paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")),col_names=TRUE,skip=numberofheaders)
-  origcolnumber <- dim(temp)[2]
-  temp <- temp %>% mutate_at(vars(10:dim(temp)[2]), .funs = funs(cov = gsub(":.*","",gsub("^.*?:","", . )))) 
-  temp <- temp %>% mutate_at(vars((origcolnumber+1):(dim(temp)[2])),funs(as.numeric))
-}
-
-
-popmap <- read.table("popmap.txt",header=FALSE,stringsAsFactors=FALSE)
-popnames <- unique(popmap[,2])
-for (k in 1:length(popnames)) {
-   tempK <- select(temp, c((1:10),which(names(temp) %in% (popmap[(which(popmap[,2]==popnames[k])),1]))))
-   origcolnumber <- dim(tempK)[2]
-   tempK <- mutate_at(tempK,vars(10:origcolnumber),.funs = funs(genotype = gsub(":.*","", . )))     
-   tempK <- mutate(tempK, hom1 = rowSums(tempK[,(origcolnumber+1):(dim(tempK)[2])] == "1/1"))
-   tempK <- mutate(tempK, het = ((rowSums(tempK[,(origcolnumber+1):(dim(tempK)[2]-1)] == "0/1")+(rowSums(tempK[,(origcolnumber+1):(dim(tempK)[2]-1)] == "1/0")))))
-   tempK <- mutate(tempK, hom0 = rowSums(tempK[,(origcolnumber+1):(dim(tempK)[2])-2] == "0/0"))
-   tempK <- filter(tempK,(!(((hom1+het)==0))|((hom0+het)==0)))
-   write.table(headerrows,(paste(basename,".",parameters[2,1],"_",parameters[3,1],".",popnames[k],".pop.vcf",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE)  
-   write_delim(tempK[,1:origcolnumber],(paste(basename,".",parameters[2,1],"_",parameters[3,1],".",popnames[k],".pop.vcf",sep="")),delim="\t",append=TRUE,col_names=TRUE)    
-}
+    names(hwetable) <- c("snp",popnames) 
+    write.table(hwetable,(paste(basename,".HWE",sep="")),quote=FALSE,row.names=FALSE,col.names=TRUE)
+  } else { #6AB reading in existing HWE file  
+    hwetable <- read.table(paste(basename,".HWE",sep=""),header=TRUE,stringsAsFactors=FALSE)
+  }  
+  
+  outofhwe <- unlist(lapply(1:(dim(temp)[1]),function(x){
+    sum(hwetable[x,2:(dim(hwetable)[2])]<as.numeric(parameters[4,1]))>as.numeric(parameters[6,1]) 
+  }))  
+  hwetablebin <- hwetable[(which(outofhwe==TRUE)),]
+  write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)
+  write(paste("The following loci (p-values given) will be removed as more than ",parameters[6,1]," populations had a HWE p-value of <",parameters[4,1],sep=""),logfilename,append=TRUE)
+  write.table(hwetablebin,logfilename,append=TRUE,row.names=FALSE,col.names=TRUE)  
+  temp <- temp %>% filter(., (!(`#CHROM` %in% (hwetablebin[,1]))))
+  write.table(headerrows,(paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE)
+  write_delim(temp[,1:origcolnumber],(paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")),delim="\t",append=TRUE,col_names=TRUE)    
+  write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)  
+  write(paste("Following this filtering ",basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf has been written out, containing ",(dim(temp)[1])," SNPs and ", (origcolnumber-9), " samples",sep=""),logfilename,append=TRUE)  
+} 
