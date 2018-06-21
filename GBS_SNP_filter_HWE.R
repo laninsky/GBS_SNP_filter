@@ -94,41 +94,53 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".vcf",sep="")) %i
   origcolnumber <- dim(temp)[2]
   temp <- temp %>% mutate_at(vars(10:dim(temp)[2]), .funs = funs(cov = gsub(":.*","",gsub("^.*?:","", . )))) 
   temp <- temp %>% mutate_at(vars((origcolnumber+1):(dim(temp)[2])),funs(as.numeric))
-}  
+}  #4B
+
 
 #Make into an array
 if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")) %in% filelist)) {
   if (!((paste(basename,".HWE",sep="")) %in% filelist)) { # If locus specific HWE values have not already been printed out  
     popmap <- read.table("popmap.txt",header=FALSE,stringsAsFactors=FALSE)
     popnames <- unique(popmap[,2])
-    hwetable <- matrix(c("snp",popnames),nrow=1)
-    write.table(hwetable,(paste(basename,".HWE",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE)  
-    hwetablebin <- hwetable
-    for (i in 1:(dim(temp)[1])) { #5A: for each SNP
-      temprow <- matrix(c(temp[i,1],popnames),nrow=1)
-      temptemp <- temp[i,1:origcolnumber]      
-      for (k in 1:length(popnames)) { #8A: for each population
-        temptemppop <- select(temptemp, which(names(temptemp) %in% (popmap[(which(popmap[,2]==popnames[k])),1])))
-        temptemppop <- mutate_at(temptemppop,vars(1:dim(temptemppop)[2]),funs(gsub(":.*","", . )))
+    temptemp <- temp[,1:origcolnumber] 
+    hwetable <- NULL
+    for (k in 1:length(popnames)) { #8A: for each population
+      print(paste("Up to ",k," out of ",length(popnames), " populations",sep="")) 
+      temptemppop <- select(temptemp, which(names(temptemp) %in% (popmap[(which(popmap[,2]==popnames[k])),1])))
+      temptemppop <- mutate_at(temptemppop,vars(1:dim(temptemppop)[2]),funs(gsub(":.*","", . )))
+      hwetablepvalues <- unlist(lapply(1:(dim(temp)[1]),function(x){
         tempmatrix <- matrix(0,ncol=2,nrow=3)
-        tempmatrix[1,1] <- length(which(temptemppop[1,]=="0/0"))
-        tempmatrix[2,1] <- length(which((temptemppop[1,]=="0/1" | temptemppop[1,]=="1/0")))
-        tempmatrix[3,1] <- length(which(temptemppop[1,]=="1/1"))
+        tempmatrix[1,1] <- length(which(temptemppop[x,]=="0/0"))
+        tempmatrix[2,1] <- length(which((temptemppop[x,]=="0/1" | temptemppop[x,]=="1/0")))
+        tempmatrix[3,1] <- length(which(temptemppop[x,]=="1/1"))
         tempmatrix[1,2] <- ((((2*tempmatrix[1,1])+tempmatrix[2,1])/(2*sum(tempmatrix[,1])))^2)*sum(tempmatrix[,1])
         tempmatrix[3,2] <- ((((2*tempmatrix[3,1])+tempmatrix[2,1])/(2*sum(tempmatrix[,1])))^2)*sum(tempmatrix[,1])
         tempmatrix[2,2] <- 2*(((2*tempmatrix[1,1])+tempmatrix[2,1])/(2*sum(tempmatrix[,1])))*(((2*tempmatrix[3,1])+tempmatrix[2,1])/(2*sum(tempmatrix[,1])))*sum(tempmatrix[,1])
         if (sum(tempmatrix[,1])==0) {
-          temprow[1,(k+1)] <- "NaN"
+          temphwep <- "NaN"
         } else {  
-          temprow[1,(k+1)] <- suppressWarnings(fisher.test(tempmatrix)$p.value)
-        }  
-      } #8B
+          temphwep <- suppressWarnings(fisher.test(tempmatrix)$p.value)
+        }       
+        return(temphwep)
+      }))
+      hwetable <- cbind(hwetable,hwetablepvalues)
+    } #8B
+      
+      
+
+    #maybe for later
+    hwetable <- matrix(ncol=length(c("snp",popnames)),nrow=)
+    write.table(hwetable,(paste(basename,".HWE",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE)      
+    write.table(temprow,(paste(basename,".HWE",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE,append=TRUE)
       if(sum(temprow[2:length(temprow)]<as.numeric(parameters[4,1]))>as.numeric(parameters[6,1])) {
         hwetablebin <- rbind(hwetablebin,temprow)
       }
-      write.table(temprow,(paste(basename,".HWE",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE,append=TRUE)
-      print(paste("Up to ",i," out of ",(dim(temp)[1]), " loci",sep=""))  
-    }     
+
+    
+    
+    #Make into an array
+
+
     write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)
     write(paste("The following loci (p-values given) will be removed as more than ",parameters[6,1]," populations had a HWE p-value of <",parameters[4,1],sep=""),logfilename,append=TRUE)
     write.table(hwetablebin,logfilename,append=TRUE,row.names=FALSE,col.names=FALSE)  
