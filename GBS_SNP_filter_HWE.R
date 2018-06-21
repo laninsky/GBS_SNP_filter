@@ -96,10 +96,8 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".vcf",sep="")) %i
   temp <- temp %>% mutate_at(vars((origcolnumber+1):(dim(temp)[2])),funs(as.numeric))
 }  #4B
 
-
-#Make into an array
-if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")) %in% filelist)) {
-  if (!((paste(basename,".HWE",sep="")) %in% filelist)) { # If locus specific HWE values have not already been printed out  
+if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")) %in% filelist)) { #5A: If we haven't carried out HWE filtering for files with this combo of parameters yet
+  if (!((paste(basename,".HWE",sep="")) %in% filelist)) { # 6A: If locus specific HWE values have not already been printed out  
     popmap <- read.table("popmap.txt",header=FALSE,stringsAsFactors=FALSE)
     popnames <- unique(popmap[,2])
     temptemp <- temp[,1:origcolnumber] 
@@ -125,11 +123,13 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")
       }))
       hwetable <- cbind(hwetable,hwetablepvalues)
     } #8B
+    hwetable <- cbind(temp[,1],hwetable)
+ 
       
       
 
     #maybe for later
-    hwetable <- matrix(ncol=length(c("snp",popnames)),nrow=)
+    hwetable <- matrix(ncol=length(),nrow=)
     write.table(hwetable,(paste(basename,".HWE",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE)      
     write.table(temprow,(paste(basename,".HWE",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE,append=TRUE)
       if(sum(temprow[2:length(temprow)]<as.numeric(parameters[4,1]))>as.numeric(parameters[6,1])) {
