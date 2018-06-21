@@ -122,24 +122,25 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")
         return(temphwep)
       }))
       hwetable <- cbind(hwetable,hwetablepvalues)
-    } #8B
+    } #8B  
     hwetable <- cbind(as.matrix(temp[,1]),hwetable)
-    names(hwetable) <- c("snp",popnames) 
-    write.table(hwetable,(paste(basename,".HWE",sep="")),quote=FALSE,row.names=FALSE,col.names=TRUE)
+    write.table(matrix(c("snp",popnames),nrow=1),(paste(basename,".HWE",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE) 
+    write.table(hwetable,(paste(basename,".HWE",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE,append=TRUE)
   } else { #6AB reading in existing HWE file  
     hwetable <- read.table(paste(basename,".HWE",sep=""),header=TRUE,stringsAsFactors=FALSE)
   }  
   
-  # NEED TO CHECK HOW THIS STEP WORKS FOR HWE TABLE THAT HAVE COME ALL THE WAY THROUGH VERSUS BEING READ IN
-  
   outofhwe <- unlist(lapply(1:(dim(temp)[1]),function(x){
-    sum(as.numeric(hwetable[x,2:(dim(hwetable)[2])]<as.numeric(parameters[4,1])))>as.numeric(parameters[6,1]) 
+    sum(as.numeric(hwetable[x,2:(dim(hwetable)[2])])<as.numeric(parameters[4,1]))>=as.numeric(parameters[6,1]) 
   }))  
   
   hwetablebin <- hwetable[(which(outofhwe==TRUE)),]
+  hwetablebin <- as.data.frame(hwetablebin)
+  names(hwetablebin) <- c("snp",popnames)
+  
   write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)
   write(paste("The following loci (p-values given) will be removed as more than ",parameters[6,1]," populations had a HWE p-value of <",parameters[4,1],sep=""),logfilename,append=TRUE)
-  write.table(hwetablebin,logfilename,append=TRUE,row.names=FALSE,col.names=TRUE)  
+  write.table(hwetablebin,logfilename,append=TRUE,row.names=FALSE,col.names=TRUE,quote=FALSE)  
   temp <- temp %>% filter(., (!(`#CHROM` %in% (hwetablebin[,1]))))
   write.table(headerrows,(paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE)
   write_delim(temp[,1:origcolnumber],(paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf",sep="")),delim="\t",append=TRUE,col_names=TRUE)    
