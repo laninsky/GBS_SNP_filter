@@ -106,10 +106,13 @@ while (j <= SNP_length) {
   if(is.na(SNP_record[(j-1),8])) {
     break
   }
-  #OK, SO MAYBE WE WRITE OUT THIS TABLE. DOUBLE CHECK THINGS ARE NOT WEIRD, BUT ACTUALLY THAT SHOULD BE IT?
-  # CHECK NOTHING IS IN THE LEFT AND RIGHT COLUMN
 }    
 
-
-#Probably want to write out this SNP list
-#Then want to use it to filter out the SNPs that are in linkage, keeping the SNP with the highest coverage. When the SNP is ditched, need to check SNP_record and get rid of any rows where the ditched SNP also occurs.
+write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)
+write(paste(dim(SNP_record)[1]," loci will be removed as they were in linkage with another locus in more than ",parameters[6,1]," populations at an Rsq of <",parameters[5,1],sep=""),logfilename,append=TRUE)
+write(paste("These loci will be listed in ",basename,"_",parameters[6,1],"_",parameters[5,1],".rsq",sep=""),logfilename,append=TRUE)
+write.table(SNP_record,paste(basename,"_",parameters[6,1],"_",parameters[5,1],".rsq",sep=""),row.names=FALSE,col.names=TRUE,quote=FALSE)  
+write.table(headerrows,(paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.",parameters[6,1],"_",parameters[5,1],".ld.vcf",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE)
+write_delim(temp[,1:origcolnumber],(paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.",parameters[6,1],"_",parameters[5,1],".ld.vcf",sep="")),delim="\t",append=TRUE,col_names=TRUE)    
+write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)  
+write(paste("Following this filtering ",basename,".",parameters[2,1],"_",parameters[3,1],".HWE.",parameters[6,1],"_",parameters[5,1],".ld.vcf has been written out, containing ",(dim(temp)[1])," SNPs and ", (origcolnumber-9), " samples",sep=""),logfilename,append=TRUE)   
