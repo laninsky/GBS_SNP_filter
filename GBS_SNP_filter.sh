@@ -23,3 +23,5 @@ for i in `ls *pop.vcf`; do
 done
 
 Rscript GBS_SNP_filter_rsq.R
+
+rm temp
