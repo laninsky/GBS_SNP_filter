@@ -22,3 +22,4 @@ for i in `ls *pop.vcf`; do
     rm -rf *nosex
 done
 
+Rscript GBS_SNP_filter_rsq.R
