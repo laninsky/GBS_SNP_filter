@@ -97,7 +97,7 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".vcf",sep="")) %i
 }  #4B
 
 if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[6,1],".HWE.vcf",sep="")) %in% filelist)) { #5A: If we haven't carried out HWE filtering for files with this combo of parameters yet
-  if (!((paste(basename,".HWE",sep="")) %in% filelist)) { # 6A: If locus specific HWE values have not already been printed out  
+  if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE",sep="")) %in% filelist)) { # 6A: If locus specific HWE values have not already been printed out  
     popmap <- read.table("popmap.txt",header=FALSE,stringsAsFactors=FALSE)
     popnames <- unique(popmap[,2])
     temptemp <- temp[,1:origcolnumber] 
@@ -124,10 +124,10 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[6,1
       hwetable <- cbind(hwetable,hwetablepvalues)
     } #8B  
     hwetable <- cbind(as.matrix(temp[,1]),hwetable)
-    write.table(matrix(c("snp",popnames),nrow=1),(paste(basename,".HWE",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE) 
-    write.table(hwetable,(paste(basename,".HWE",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE,append=TRUE)
+    write.table(matrix(c("snp",popnames),nrow=1),(paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE) 
+    write.table(hwetable,(paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE,append=TRUE)
   } else { #6AB reading in existing HWE file  
-    hwetable <- read.table(paste(basename,".HWE",sep=""),header=TRUE,stringsAsFactors=FALSE)
+    hwetable <- read.table(paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE",sep=""),header=TRUE,stringsAsFactors=FALSE)
   }  
   
   outofhwe <- unlist(lapply(1:(dim(temp)[1]),function(x){
