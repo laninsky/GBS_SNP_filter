@@ -95,4 +95,4 @@ Petr Danecek, Adam Auton, Goncalo Abecasis, Cornelis A. Albers, Eric Banks, Mark
 
 # Version history
 
-1.0.0: Tested on a single data set so far, and working. If any issues on your data set, please log an issue.
+1.0.0: Tested on a single data set so far, and working. If any issues on your data set, please log an issue. Scripts are confirmed to work with these versions of software/libraries: VCFtools/0.1.14-gimkl-2017a-Perl-5.24.1, PLINK/1.09b3.32, R/3.5.0-gimkl-2017a, stringr v 1.3.1, readr v 1.1.1, and dplyr v 0.7.4
