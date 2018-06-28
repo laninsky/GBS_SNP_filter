@@ -96,8 +96,8 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".vcf",sep="")) %i
   temp <- temp %>% mutate_at(vars((origcolnumber+1):(dim(temp)[2])),funs(as.numeric))
 }  #4B
 
-if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[6,1],".HWE.vcf",sep="")) %in% filelist)) { #5A: If we haven't carried out HWE filtering for files with this combo of parameters yet
-  if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE",sep="")) %in% filelist)) { # 6A: If locus specific HWE values have not already been printed out  
+if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE.vcf",sep="")) %in% filelist)) { #5A: If we haven't carried out HWE filtering for files with this combo of parameters yet
+  if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],parameters[4,1],"_",parameters[6,1],".HWE",sep="")) %in% filelist)) { # 6A: If locus specific HWE values have not already been printed out  
     popmap <- read.table("popmap.txt",header=FALSE,stringsAsFactors=FALSE)
     popnames <- unique(popmap[,2])
     temptemp <- temp[,1:origcolnumber] 
@@ -142,14 +142,14 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[6,1
   write(paste("The following loci (p-values given) will be removed as more than ",parameters[6,1]," populations had a HWE p-value of <",parameters[4,1],sep=""),logfilename,append=TRUE)
   write.table(hwetablebin,logfilename,append=TRUE,row.names=FALSE,col.names=TRUE,quote=FALSE)  
   temp <- temp %>% filter(., (!(`#CHROM` %in% (hwetablebin[,1]))))
-  write.table(headerrows,(paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[6,1],".HWE.vcf",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE)
-  write_delim(temp[,1:origcolnumber],(paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[6,1],".HWE.vcf",sep="")),delim="\t",append=TRUE,col_names=TRUE)    
+  write.table(headerrows,(paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE.vcf",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE)
+  write_delim(temp[,1:origcolnumber],(paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE.vcf",sep="")),delim="\t",append=TRUE,col_names=TRUE)    
   write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)  
   write(paste("Following this filtering ",basename,".",parameters[2,1],"_",parameters[3,1],".HWE.vcf has been written out, containing ",(dim(temp)[1])," SNPs and ", (origcolnumber-9), " samples",sep=""),logfilename,append=TRUE)   
 } else {  #5AB
   headerrows <- read_tsv("header_row.txt",col_names=FALSE)
   numberofheaders <- dim(headerrows)[1]
-  temp <- read_tsv((paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[6,1],".HWE.vcf",sep="")),col_names=TRUE,skip=numberofheaders)
+  temp <- read_tsv((paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE.vcf",sep="")),col_names=TRUE,skip=numberofheaders)
   origcolnumber <- dim(temp)[2]
   temp <- temp %>% mutate_at(vars(10:dim(temp)[2]), .funs = funs(cov = gsub(":.*","",gsub("^.*?:","", . )))) 
   temp <- temp %>% mutate_at(vars((origcolnumber+1):(dim(temp)[2])),funs(as.numeric))
@@ -166,6 +166,6 @@ for (k in 1:length(popnames)) {
    tempK <- mutate(tempK, het = ((rowSums(tempK[,(origcolnumber+1):(dim(tempK)[2]-1)] == "0/1")+(rowSums(tempK[,(origcolnumber+1):(dim(tempK)[2]-1)] == "1/0")))))
    tempK <- mutate(tempK, hom0 = rowSums(tempK[,(origcolnumber+1):(dim(tempK)[2])-2] == "0/0"))
    tempK <- filter(tempK,(!(((hom1+het)==0))|((hom0+het)==0)))
-   write.table(headerrows,(paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[6,1],".",popnames[k],".pop.vcf",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE)  
-   write_delim(tempK[,1:origcolnumber],(paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[6,1],".",popnames[k],".pop.vcf",sep="")),delim="\t",append=TRUE,col_names=TRUE)    
+   write.table(headerrows,(paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".",popnames[k],".pop.vcf",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE)  
+   write_delim(tempK[,1:origcolnumber],(paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".",popnames[k],".pop.vcf",sep="")),delim="\t",append=TRUE,col_names=TRUE)    
 }
