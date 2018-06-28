@@ -95,4 +95,4 @@ Petr Danecek, Adam Auton, Goncalo Abecasis, Cornelis A. Albers, Eric Banks, Mark
 
 # Version history
 
-1.0.0: Working on a single data set so far, and working. If any issues on your data set, please log an issue.
+1.0.0: Tested on a single data set so far, and working. If any issues on your data set, please log an issue.
