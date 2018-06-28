@@ -10,7 +10,7 @@ logfilename <- paste(basename,".log",sep="")
 headerrows <- read_tsv("header_row.txt",col_names=FALSE)
 numberofheaders <- dim(headerrows)[1]
 
-temp <- read_tsv((paste(basename,".",parameters[2,1],"_",parameters[3,1],".vcf",sep="")),col_names=TRUE,skip=numberofheaders)
+temp <- read_tsv((paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[6,1],".HWE.vcf",sep="")),col_names=TRUE,skip=numberofheaders)
 origcolnumber <- dim(temp)[2]
 temp <- temp %>% mutate_at(vars(10:dim(temp)[2]), .funs = funs(cov = gsub(":.*","",gsub("^.*?:","", . )))) 
 temp <- temp %>%  mutate_at(vars((origcolnumber+1):(dim(temp)[2])),funs(as.numeric))
@@ -21,7 +21,7 @@ popnames <- unique(popmap[,2])
 SNP_record <- NULL
 
 for (k in 1:length(popnames)) {
-  tempk <- read_table((paste(basename,".",parameters[2,1],"_",parameters[3,1],".",popnames[k],".pop.ld",sep="")),col_names=TRUE)
+  tempk <- read_table((paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[6,1],".",popnames[k],".pop.ld",sep="")),col_names=TRUE)
   tempk <- select(tempk,c(SNP_A,SNP_B,R2))
   tempk <- mutate_at(tempk,vars(SNP_A,SNP_B),funs(gsub(":.*","", . )))
   if(is.null(SNP_record)) {
@@ -112,7 +112,7 @@ write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)
 write(paste(dim(SNP_record)[1]," loci will be removed as they were in linkage with another locus in more than ",parameters[6,1]," populations at an Rsq of >=",parameters[5,1],sep=""),logfilename,append=TRUE)
 write(paste("These loci will be listed in ",basename,"_",parameters[6,1],"_",parameters[5,1],".rsq",sep=""),logfilename,append=TRUE)
 write.table(SNP_record,paste(basename,"_",parameters[6,1],"_",parameters[5,1],".rsq",sep=""),row.names=FALSE,col.names=TRUE,quote=FALSE)  
-write.table(headerrows,(paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.",parameters[6,1],"_",parameters[5,1],".ld.vcf",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE)
-write_delim(temp[,1:origcolnumber],(paste(basename,".",parameters[2,1],"_",parameters[3,1],".HWE.",parameters[6,1],"_",parameters[5,1],".ld.vcf",sep="")),delim="\t",append=TRUE,col_names=TRUE)    
+write.table(headerrows,(paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[6,1],".HWE.",parameters[5,1],".ld.vcf",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE)
+write_delim(temp[,1:origcolnumber],(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[6,1],".HWE.",parameters[5,1],".ld.vcf",sep="")),delim="\t",append=TRUE,col_names=TRUE)    
 write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)  
-write(paste("Following this filtering ",basename,".",parameters[2,1],"_",parameters[3,1],".HWE.",parameters[6,1],"_",parameters[5,1],".ld.vcf has been written out, containing ",(dim(temp)[1])," SNPs and ", (origcolnumber-9), " samples",sep=""),logfilename,append=TRUE)   
+write(paste("Following this filtering ",basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[6,1],".HWE.",parameters[5,1],".ld.vcf has been written out, containing ",(dim(temp)[1])," SNPs and ", (origcolnumber-9), " samples",sep=""),logfilename,append=TRUE)   
