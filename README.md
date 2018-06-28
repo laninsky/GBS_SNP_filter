@@ -70,3 +70,29 @@ If you are submitting through a slurm system, you might need to preface the bash
 ```
 srun bash GBS_SNP_filter.sh
 ```
+
+# Suggested citation
+This code was first published in:
+TBD
+
+If you could cite the pub, and the scripts as below, that would be lovely:
+
+Alexander, A. 2018. GBS_SNP_filter v1.x.x. Available from https://github.com/laninsky/GBS_SNP_filter
+
+This pipeline also wouldn't be possible without the programs/packages listed below. Please cite them as well:
+
+R Core Team (2017). R: A language and environment for statistical computing. R Foundation for Statistical Computing, Vienna, Austria. URL https://www.R-project.org/.
+
+Hadley Wickham (2018). stringr: Simple, Consistent Wrappers for Common String Operations. R package version X.X.X. https://CRAN.R-project.org/package=stringr
+
+Hadley Wickham, Romain Francois, Lionel Henry and Kirill Müller (2017). dplyr: A Grammar of Data Manipulation. R package version X.X.X. https://CRAN.R-project.org/package=dplyr
+
+Hadley Wickham, Jim Hester and Romain Francois (2017). readr: Read Rectangular Text Data. R package version X.X.X. https://CRAN.R-project.org/package=readr
+
+Purcell S, Neale B, Todd-Brown K, Thomas L, Ferreira MAR, Bender D, Maller J, Sklar P, de Bakker PIW, Daly MJ & Sham PC (2007). PLINK: a toolset for whole-genome association and population-based linkage analysis. American Journal of Human Genetics, 81.
+
+Petr Danecek, Adam Auton, Goncalo Abecasis, Cornelis A. Albers, Eric Banks, Mark A. DePristo, Robert Handsaker, Gerton Lunter, Gabor Marth, Stephen T. Sherry, Gilean McVean, Richard Durbin and 1000 Genomes Project Analysis Group. 2011. The Variant Call Format and VCFtools. Bioinformatics. http://dx.doi.org/10.1093/bioinformatics/btr330
+
+# Version history
+
+1.0.0: Working on a single data set so far, and working. If any issues on your data set, please log an issue.
