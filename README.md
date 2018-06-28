@@ -59,7 +59,11 @@ robin.vcf
 ```
 
 # To run GBS_SNP_filter
-Make sure GBS_SNP_filter.sh; GBS_SNP_filter_HWE.R; GBS_SNP_filter_rsq.R; and your inpt vcf file, your popmap.txt, and your GBS_SNP_filter.txt files are located in your working directory. Also make sure you have previously installed the R packages dplyr, readr, and stringr, and have vcftools and PLINK in your path. Then:
+Make sure GBS_SNP_filter.sh; GBS_SNP_filter_HWE.R; GBS_SNP_filter_rsq.R; and your inpt vcf file, your popmap.txt, and your GBS_SNP_filter.txt files are located in your working directory. Also make sure you have previously installed the R packages dplyr, readr, and stringr, and have vcftools and PLINK in your path. Then on the terminal:
 ```
 bash GBS_SNP_filter.sh
+```
+If you are submitting through a slurm system, you might need to preface the bash command with srun within your sbatch script e.g.
+```
+srun bash GBS_SNP_filter.sh
 ```
