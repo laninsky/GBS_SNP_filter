@@ -105,23 +105,27 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1
     for (k in 1:length(popnames)) { #8A: for each population
       print(paste("Up to ",k," out of ",length(popnames), " populations",sep="")) 
       temptemppop <- select(temptemp, which(names(temptemp) %in% (popmap[(which(popmap[,2]==popnames[k])),1])))
-      temptemppop <- mutate_at(temptemppop,vars(1:dim(temptemppop)[2]),funs(gsub(":.*","", . )))
-      hwetablepvalues <- unlist(lapply(1:(dim(temp)[1]),function(x){
-        tempmatrix <- matrix(0,ncol=2,nrow=3)
-        tempmatrix[1,1] <- length(which(temptemppop[x,]=="0/0"))
-        tempmatrix[2,1] <- length(which((temptemppop[x,]=="0/1" | temptemppop[x,]=="1/0")))
-        tempmatrix[3,1] <- length(which(temptemppop[x,]=="1/1"))
-        tempmatrix[1,2] <- ((((2*tempmatrix[1,1])+tempmatrix[2,1])/(2*sum(tempmatrix[,1])))^2)*sum(tempmatrix[,1])
-        tempmatrix[3,2] <- ((((2*tempmatrix[3,1])+tempmatrix[2,1])/(2*sum(tempmatrix[,1])))^2)*sum(tempmatrix[,1])
-        tempmatrix[2,2] <- 2*(((2*tempmatrix[1,1])+tempmatrix[2,1])/(2*sum(tempmatrix[,1])))*(((2*tempmatrix[3,1])+tempmatrix[2,1])/(2*sum(tempmatrix[,1])))*sum(tempmatrix[,1])
-        if (sum(tempmatrix[,1])==0) {
-          temphwep <- "NaN"
-        } else {  
-          temphwep <- suppressWarnings(fisher.test(tempmatrix)$p.value)
-        }       
-        return(temphwep)
-      }))
-      hwetable <- cbind(hwetable,hwetablepvalues)
+      if (!((dim(temptemppop)[2])==0)) { #80A: if the population has samples remaining
+        temptemppop <- mutate_at(temptemppop,vars(1:dim(temptemppop)[2]),funs(gsub(":.*","", . )))
+        hwetablepvalues <- unlist(lapply(1:(dim(temp)[1]),function(x){
+          tempmatrix <- matrix(0,ncol=2,nrow=3)
+          tempmatrix[1,1] <- length(which(temptemppop[x,]=="0/0"))
+          tempmatrix[2,1] <- length(which((temptemppop[x,]=="0/1" | temptemppop[x,]=="1/0")))
+          tempmatrix[3,1] <- length(which(temptemppop[x,]=="1/1"))
+          tempmatrix[1,2] <- ((((2*tempmatrix[1,1])+tempmatrix[2,1])/(2*sum(tempmatrix[,1])))^2)*sum(tempmatrix[,1])
+          tempmatrix[3,2] <- ((((2*tempmatrix[3,1])+tempmatrix[2,1])/(2*sum(tempmatrix[,1])))^2)*sum(tempmatrix[,1])
+          tempmatrix[2,2] <- 2*(((2*tempmatrix[1,1])+tempmatrix[2,1])/(2*sum(tempmatrix[,1])))*(((2*tempmatrix[3,1])+tempmatrix[2,1])/(2*sum(tempmatrix[,1])))*sum(tempmatrix[,1])
+          if (sum(tempmatrix[,1])==0) {
+            temphwep <- "NaN"
+          } else {  
+            temphwep <- suppressWarnings(fisher.test(tempmatrix)$p.value)
+          }       
+          return(temphwep)
+        }))
+        hwetable <- cbind(hwetable,hwetablepvalues)
+      } else { #80AB
+        hwetable <- cbind(hwetable,"NaN")
+      } #80B  
     } #8B  
     hwetable <- cbind(as.matrix(temp[,1]),hwetable)
     write.table(matrix(c("snp",popnames),nrow=1),(paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE) 
@@ -159,6 +163,7 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1
 popmap <- read.table("popmap.txt",header=FALSE,stringsAsFactors=FALSE)
 popnames <- unique(popmap[,2])
 for (k in 1:length(popnames)) {
+  # Probably need a fix here too
    tempK <- select(temp, c((1:10),which(names(temp) %in% (popmap[(which(popmap[,2]==popnames[k])),1]))))
    origcolnumber <- dim(tempK)[2]
    tempK <- mutate_at(tempK,vars(10:origcolnumber),.funs = funs(genotype = gsub(":.*","", . )))     
