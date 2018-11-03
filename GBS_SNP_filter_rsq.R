@@ -21,14 +21,19 @@ popnames <- unique(popmap[,2])
 SNP_record <- NULL
 
 for (k in 1:length(popnames)) {
-  tempk <- read_table((paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE.",popnames[k],".pop.ld",sep="")),col_names=TRUE)
-  tempk <- select(tempk,c(SNP_A,SNP_B,R2))
-  tempk <- mutate_at(tempk,vars(SNP_A,SNP_B),funs(gsub(":.*","", . )))
-  if(is.null(SNP_record)) {
-    SNP_record <- tempk    
-  }  else {
-    SNP_record <- full_join(SNP_record,tempk,by=c("SNP_A","SNP_B"))
-  } 
+  if ((paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE.",popnames[k],".pop.ld",sep="")) %in% list.files()) { #1A: Does this file exist (e.g. have all the sample been ditched due to SNP filters
+    tempk <- read_table((paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE.",popnames[k],".pop.ld",sep="")),col_names=TRUE)
+    tempk <- select(tempk,c(SNP_A,SNP_B,R2))
+    tempk <- mutate_at(tempk,vars(SNP_A,SNP_B),funs(gsub(":.*","", . )))
+    if(is.null(SNP_record)) {
+      SNP_record <- tempk    
+    }  else {
+      SNP_record <- full_join(SNP_record,tempk,by=c("SNP_A","SNP_B"))
+    }
+  } else { #1AB: What to do if that population does have no samples
+    write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)
+    write(paste(popnames[k]," does not have any samples remaining, potentially because they were removed due to having too many missing SNPs",sep=""),logfilename,append=TRUE)
+  } #1B  
 }
 names(SNP_record) <- c("Locus_1","Locus_2",popnames)
 
