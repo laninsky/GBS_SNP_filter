@@ -33,6 +33,12 @@ for (k in 1:length(popnames)) {
   } else { #1AB: What to do if that population does have no samples
     write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)
     write(paste(popnames[k]," does not have any samples remaining, potentially because they were removed due to having too many missing SNPs",sep=""),logfilename,append=TRUE)
+    if(is.null(SNP_record)) {
+      SNP_record <- rep("NaN", # TO DO ADD IN FILLER HERE    
+    }  else {
+      SNP_record <- full_join(SNP_record,tempk,by=c("SNP_A","SNP_B"))
+    }
+
   } #1B  
 }
 names(SNP_record) <- c("Locus_1","Locus_2",popnames)
