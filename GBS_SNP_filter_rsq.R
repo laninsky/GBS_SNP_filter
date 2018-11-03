@@ -20,6 +20,8 @@ popnames <- unique(popmap[,2])
 
 SNP_record <- NULL
 
+removepops <- NULL
+
 for (k in 1:length(popnames)) {
   if ((paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE.",popnames[k],".pop.ld",sep="")) %in% list.files()) { #1A: Does this file exist (e.g. have all the sample been ditched due to SNP filters
     tempk <- read_table((paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE.",popnames[k],".pop.ld",sep="")),col_names=TRUE)
@@ -33,15 +35,10 @@ for (k in 1:length(popnames)) {
   } else { #1AB: What to do if that population does have no samples
     write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)
     write(paste(popnames[k]," does not have any samples remaining, potentially because they were removed due to having too many missing SNPs",sep=""),logfilename,append=TRUE)
-    if(is.null(SNP_record)) {
-      SNP_record <- rep("NaN", # TO DO ADD IN FILLER HERE    
-    }  else {
-      SNP_record <- full_join(SNP_record,tempk,by=c("SNP_A","SNP_B"))
-    }
-
+    removepops <- c(removepops, k)
   } #1B  
 }
-names(SNP_record) <- c("Locus_1","Locus_2",popnames)
+names(SNP_record) <- c("Locus_1","Locus_2",popnames[-removepops])
 
 SNP_record <- filter(SNP_record, (dim(SNP_record)[2]-2)-rowSums(is.na(SNP_record[,3:(dim(SNP_record)[2])]))>=as.numeric(parameters[6,1]))
 
