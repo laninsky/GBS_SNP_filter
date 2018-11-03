@@ -137,7 +137,7 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1
   }  
   
   outofhwe <- unlist(lapply(1:(dim(temp)[1]),function(x){
-    sum(as.numeric(hwetable[x,2:(dim(hwetable)[2])])<as.numeric(parameters[4,1]))>=as.numeric(parameters[6,1]) 
+    sum(as.numeric(hwetable[x,2:(dim(hwetable)[2])])<as.numeric(parameters[4,1]),na.rm=TRUE)>=as.numeric(parameters[6,1])
   }))  
   
   hwetablebin <- hwetable[(which(outofhwe==TRUE)),]
