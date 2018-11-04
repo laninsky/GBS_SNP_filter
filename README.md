@@ -74,6 +74,9 @@ If you are submitting through a slurm system, you might need to preface the bash
 srun bash GBS_SNP_filter.sh
 ```
 
+# Troubleshooting
+If you find that too many SNPs are being discarded based on the SNP completeness filter (e.g. being found in >= 85% of the samples), it may be that you have had a larger-than-expected number of samples fail. I would suggest changing the second line of GBS_SNP_filter.txt to 0.0 and not filter SNPs based on this metric the first time around. Following filtering of the datasets for samples with high levels of missing data, you could then take the output vcf and run it through another round of filtering, bumping this second line back up to a more stringent value (e.g. 0.85)
+
 # Suggested citation
 This code was first published in:
 TBD
@@ -97,5 +100,7 @@ Purcell S, Neale B, Todd-Brown K, Thomas L, Ferreira MAR, Bender D, Maller J, Sk
 Petr Danecek, Adam Auton, Goncalo Abecasis, Cornelis A. Albers, Eric Banks, Mark A. DePristo, Robert Handsaker, Gerton Lunter, Gabor Marth, Stephen T. Sherry, Gilean McVean, Richard Durbin and 1000 Genomes Project Analysis Group. 2011. The Variant Call Format and VCFtools. Bioinformatics. http://dx.doi.org/10.1093/bioinformatics/btr330
 
 # Version history
+
+1.0.1: Fix for bug that arose when all samples in a population were removed due to the missing filter. Minor changes to README.md.
 
 1.0.0: Tested on a single data set so far, and working. If any issues on your data set, please log an issue. Scripts are confirmed to work with these versions of software/libraries: VCFtools/0.1.14-gimkl-2017a-Perl-5.24.1, PLINK/1.09b3.32, R/3.5.0-gimkl-2017a, stringr v 1.3.1, readr v 1.1.1, and dplyr v 0.7.4
