@@ -25,7 +25,7 @@ sMLH_MLH <- function(vcf_name) {
 
   basename <- gsub(".vcf","",vcf_name)                                 
                                    
-  write.table(cbind(colnames(vcf@gt)[-1],as.vector(sHet)),paste(basename,"sMLH.txt",sep=""),quote=FALSE,row.names=FALSE,col.names=FALSE)
-  write.table(cbind(colnames(vcf@gt)[-1],as.vector(Het)),paste(basename,"MLH.txt",sep=""),quote=FALSE,row.names=FALSE,col.names=FALSE)
+  write.table(cbind(colnames(vcf@gt)[-1],as.vector(sHet)),paste(basename,".sMLH.txt",sep=""),quote=FALSE,row.names=FALSE,col.names=FALSE)
+  write.table(cbind(colnames(vcf@gt)[-1],as.vector(Het)),paste(basename,".MLH.txt",sep=""),quote=FALSE,row.names=FALSE,col.names=FALSE)
 
 }                                   
