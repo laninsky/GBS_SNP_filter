@@ -5,3 +5,11 @@ split_vcf_by_pop(vcf_name,numberofheaders)
 # e.g.
 split_vcf_by_pop("hihi.biallelic.vcf",10)
 ```
+
+# sMLH_MLH.R
+Given a vcf file, this script will calculate MLH and sMLH for all individuals in your file. You call the script (after pasting the whole thing into R and/or sourcing it) by:
+```
+sMLH_MLH(vcf_name)
+# e.g.
+sMLH_MLH("hihi.biallelic.vcf")
+```
