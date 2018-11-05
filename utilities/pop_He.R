@@ -1,7 +1,10 @@
-pop_He <- function(vcf_name) {
+pop_He <- function(vcf_name,min_sample_size) {
 
   if (!require('vcfR')) install.packages('vcfR'); library('vcfR')
+  vcf <- read.vcfR(vcf_name, verbose = FALSE )
+  popsum <- gt.to.popsum(vcf)
+  basename <- gsub(".vcf","",vcf_name)
+  popsum <- popsum[(which(popsum[,1]>=sample_size)),]
+  write.table(headerrows,(paste(basename,".",popnames[k],".",min_sample_size,".He.txt",sep="")),quote=FALSE,row.names=FALSE)  
 
-vcf_file <- "hihi_prev_filter.0.85_0.9.0.05_3.HWE.0.5.ld.vcf"
-vcf <- read.vcfR(vcf_file, verbose = FALSE )
-popsum_total.txt <- gt.to.popsum(vcf)
+}  
