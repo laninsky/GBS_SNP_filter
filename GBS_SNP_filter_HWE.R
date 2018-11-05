@@ -166,7 +166,7 @@ popmap <- read.table("popmap.txt",header=FALSE,stringsAsFactors=FALSE)
 popnames <- unique(popmap[,2])
 for (k in 1:length(popnames)) {
   # Probably need a fix here too
-   tempK <- select(temp, c((1:10),which(names(temp) %in% (popmap[(which(popmap[,2]==popnames[k])),1]))))
+   tempK <- select(temp, c((1:9),which(names(temp) %in% (popmap[(which(popmap[,2]==popnames[k])),1]))))
    origcolnumber <- dim(tempK)[2]
    tempK <- mutate_at(tempK,vars(10:origcolnumber),.funs = funs(genotype = gsub(":.*","", . )))     
    tempK <- mutate(tempK, hom1 = rowSums(tempK[,(origcolnumber+1):(dim(tempK)[2])] == "1/1"))
