@@ -2,9 +2,9 @@ numberofheaders <- 10
 vcf_name <- "hihi_prev_filter.0.85_0.9.0.05_3.HWE.0.5.ld.vcf"
 
 split_vcf_by_ppop <- function(vcf_name,numberofheaders) {
-  library(dplyr)
-  library(readr)
-  library(stringr)
+  if (!require('dplyr')) install.packages('dplyr'); library('dplyr')
+  if (!require('readr')) install.packages('readr'); library('readr')
+  if (!require('stringr')) install.packages('stringr'); library('stringr')
   temp <- read_tsv(vcf_name,col_names=TRUE,skip=numberofheaders)
   headerrows <- readLines(vcf_name,numberofheaders)
 
