@@ -111,6 +111,8 @@ H. Wickham. Reshaping data with the reshape package. Journal of Statistical Soft
 
 # Version history
 
+1.0.3: Fixed a bug introduced in 1.0.2 that was not coping with writing out population specific vcfs for calculating LD if any of the populations were completely missing populations. Added the scripts in the utilities folder.
+
 1.0.2: Fix for bug that meant the first sample in the original vcf appeared in all population-specific vcfs used for calculating HWE and rsq. Modified Rscripts so dplyr, readr and stringr packages were installed if they weren't already when first called.
 
 1.0.1: Fix for bug that arose when all samples in a population were removed due to the missing filter. Minor changes to README.md.
