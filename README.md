@@ -77,6 +77,9 @@ srun bash GBS_SNP_filter.sh
 # Troubleshooting
 If you find that too many SNPs are being discarded based on the SNP completeness filter (e.g. being found in >= 85% of the samples), it may be that you have had a larger-than-expected number of samples fail. I would suggest changing the second line of GBS_SNP_filter.txt to 0.0 and not filter SNPs based on this metric the first time around. Following filtering of the datasets for samples with high levels of missing data, you could then take the output vcf and run it through another round of filtering, bumping this second line back up to a more stringent value (e.g. 0.85)
 
+# Further utilities
+In the utilities folder are scripts for divvying out your "final" vcf into population-specific vcf files, and using vcfR and inbreedR to calculate individual-level (multi-locus heterozygosity) and population-level (He) estimates of heterozygosity.
+
 # Suggested citation
 This code was first published in:
 TBD
@@ -98,6 +101,10 @@ Hadley Wickham, Jim Hester and Romain Francois (2017). readr: Read Rectangular T
 Purcell S, Neale B, Todd-Brown K, Thomas L, Ferreira MAR, Bender D, Maller J, Sklar P, de Bakker PIW, Daly MJ & Sham PC (2007). PLINK: a toolset for whole-genome association and population-based linkage analysis. American Journal of Human Genetics, 81.
 
 Petr Danecek, Adam Auton, Goncalo Abecasis, Cornelis A. Albers, Eric Banks, Mark A. DePristo, Robert Handsaker, Gerton Lunter, Gabor Marth, Stephen T. Sherry, Gilean McVean, Richard Durbin and 1000 Genomes Project Analysis Group. 2011. The Variant Call Format and VCFtools. Bioinformatics. http://dx.doi.org/10.1093/bioinformatics/btr330
+
+Knaus BJ and Grünwald NJ (2017). “VCFR: a package to manipulate and visualize variant call format data in R.” Molecular Ecology Resources, 17(1), pp. 44–53. ISSN 757, http://dx.doi.org/10.1111/1755-0998.12549.
+
+Stoffel, M. A., Esser, M., Kardos, M., Humble, E., Nichols, H., David, P., & Hoffman, J. I. (2016). inbreedR: An R package for the analysis of inbreeding based on genetic markers. Methods in Ecology and Evolution.
 
 # Version history
 
