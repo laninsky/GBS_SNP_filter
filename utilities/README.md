@@ -13,3 +13,4 @@ sMLH_MLH(vcf_name)
 # e.g.
 sMLH_MLH("hihi.biallelic.vcf")
 ```
+The sMLH results will be suffixed by "sMLH.txt", and MLH results suffixed by "MLH.txt"
