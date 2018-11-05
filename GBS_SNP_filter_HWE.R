@@ -1,6 +1,6 @@
-library(dplyr)
-library(readr)
-library(stringr)
+if (!require('dplyr')) install.packages('dplyr'); library('dplyr')
+if (!require('readr')) install.packages('readr'); library('readr')
+if (!require('stringr')) install.packages('stringr'); library('stringr')
 #library(tidyverse) # I've had issues loading library(tidyverse) and R crashing using the sbatch syste
 parameters <- read.table("GBS_SNP_filter.txt",header=FALSE,stringsAsFactors=FALSE)
 basename <- gsub(".vcf","",parameters[1,1])
