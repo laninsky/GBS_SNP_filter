@@ -18,7 +18,7 @@ sMLH_MLH <- function(vcf_name) {
   snp_geno <- do.call(cbind, apply(gt, 2, function(x) colsplit(x, "/", c("a","b"))))
   snp_genotypes <- inbreedR::convert_raw(snp_geno)
   print("If the following prints as TRUE, your genotypes are formatted correctly")                                   
-  check_data(snp_genotypes)
+  print(check_data(snp_genotypes))
   print("Calculating sMLH and MLH")                                 
   sHet <- sMLH(snp_genotypes)
   Het <- MLH(snp_genotypes)
