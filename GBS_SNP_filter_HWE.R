@@ -125,8 +125,12 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1
         hwetable <- cbind(hwetable,hwetablepvalues)
       } else { #80AB
         write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)
-        hwetable <- cbind(hwetable,"NaN")
-        write(paste("The following population has no samples left following filtering for missing SNPs:",popnames[k],sep=""),logfilename,append=TRUE)     
+        write(paste("The following population has no samples left following filtering for missing SNPs:",popnames[k],sep=""),logfilename,append=TRUE)           
+        if (is.null(hwetable)) {
+          hwetable <- matrix("NaN",nrow=dim(temptemppop)[1])
+        } else {  
+          hwetable <- cbind(hwetable,"NaN")          
+        } 
       } #80B  
     } #8B  
     hwetable <- cbind(as.matrix(temp[,1]),hwetable)
