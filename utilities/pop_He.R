@@ -45,7 +45,7 @@ results_matrix[5:6,(2:dim(results_matrix)[2])] <- t(boot_Fis$fis.ci)
   
 basename <- gsub(".vcf","",vcf_name)
 
-print(paste(basename,".",min_sample_size,".He.txt",sep=""))
+print(paste(basename,".He.txt has been written out",sep=""))
 write.table(results_matrix,(paste(basename,".He.txt",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE)  
 
 }  
