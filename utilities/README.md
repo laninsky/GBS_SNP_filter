@@ -16,9 +16,13 @@ sMLH_MLH("hihi.biallelic.vcf")
 The sMLH results will be suffixed by "sMLH.txt", and MLH results suffixed by "MLH.txt"
 
 # pop_He
-Given a vcf file and a popmap.txt file in the same directory, this script will calculate Ho, He (Hs in hierfstat), Fis, and bootstrap whether Fis is signficantely different from 0 for each population represented in the vcf. You call the script (after pasting the whole thing into R and/or sourcing it) by:
+Given a vcf file and a popmap.txt file in the same directory, this script will calculate Ho, He (Hs in hierfstat), Fis, and bootstrap whether Fis is signficantly different from 0 for each population represented in the vcf. You call the script (after pasting the whole thing into R and/or sourcing it) by:
 ```
 pop_He(vcf_name)
 # e.g.
 pop_He("hihi.biallelic.Bushy_Park.pop.vcf")
 ```
+This script will take vcf files as input. If you want to do similar stuff with FSTAT files please see:
+https://github.com/laninsky/hierfstat_by_pop/tree/master
+
+Also note the script here will analyses populations together - useful if you are comparing He and Ho. The code at https://github.com/laninsky/GBS_SNP_filter/tree/master/utilities will analyze them on a population-by-population basis.
