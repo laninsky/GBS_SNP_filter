@@ -1,4 +1,4 @@
-# GBS_SNP_filter
+# GBS_SNP_filter v1.04
 
 After you get your ddRADseq/GBS dataset through your favourite pipeline, you might want to further filter the SNPs contained in the vcf before doing downstream analysis. This set of scripts filters for bi-allelicness, one SNP/locus, completeness, HWD and LD, and outputs vcf files for each filtering stage.
 
@@ -111,6 +111,8 @@ H. Wickham. Reshaping data with the reshape package. Journal of Statistical Soft
 Goudet, J., 2005. Hierfstat, a package for R to compute and test hierarchical F‐statistics. Molecular Ecology Notes, 5(1), pp.184-186.
 
 # Version history
+
+1.04: Modified GBS_SNP_filter_rsq.R in response to https://github.com/laninsky/GBS_SNP_filter/issues/1: I had been assuming that at least one population would end being dropped due to individual samples failing! 
 
 1.0.3: Fixed a bug introduced in 1.0.2 that was not coping with writing out population specific vcfs for calculating LD if any of the populations were completely missing populations. Added the scripts in the utilities folder.
 
