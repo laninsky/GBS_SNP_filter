@@ -38,7 +38,13 @@ for (k in 1:length(popnames)) {
     removepops <- c(removepops, k)
   } #1B  
 }
-names(SNP_record) <- c("Locus_1","Locus_2",popnames[-removepops])
+
+# Modified because of https://github.com/laninsky/GBS_SNP_filter/issues/1 - I was assuming populations would be dropped!
+if(length(removepops)>0) {
+  names(SNP_record) <- c("Locus_1","Locus_2",popnames[-removepops])
+} else {
+  names(SNP_record) <- c("Locus_1","Locus_2",popnames)
+}
 
 SNP_record <- filter(SNP_record, (dim(SNP_record)[2]-2)-rowSums(is.na(SNP_record[,3:(dim(SNP_record)[2])]))>=as.numeric(parameters[6,1]))
 
