@@ -28,6 +28,9 @@ if (!((paste(basename,".biallelic.vcf",sep="")) %in% filelist)) {#1A  what to do
 } #1B  
 
 if (!((paste(basename,".oneSNP.vcf",sep="")) %in% filelist)) {#3A: if oneSNP.vcf doesn't exist, filtering for SNPs with the greatest coverage across individuals
+  locusname <- temp %>% select(!!parameters[7,1])
+  locusname <- as_tibble(gsub(parameters[8,1],"",as.matrix(locusname)))
+  #UP TO HERE PROvIDING LOCUSNAME COLUMN
   duplicatedloci <- unique(temp$`#CHROM`[which(duplicated(temp$`#CHROM`)==TRUE)])
   write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)
   write("The following number of loci have more than one SNP:",logfilename,append=TRUE) 
