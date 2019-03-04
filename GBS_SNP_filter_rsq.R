@@ -1,8 +1,10 @@
+# Loading in relevant packages
 if (!require('dplyr')) install.packages('dplyr'); library('dplyr')
 if (!require('readr')) install.packages('readr'); library('readr')
 if (!require('stringr')) install.packages('stringr'); library('stringr')
+if (!require('tibble')) install.packages('tibble'); library('tibble')
 #library(tidyverse) # I've had issues loading library(tidyverse) and R crashing using the sbatch syste
-parameters <- read.table("GBS_SNP_filter.txt",header=FALSE,stringsAsFactors=FALSE)
+parameters <- read.table("GBS_SNP_filter.txt",header=FALSE,stringsAsFactors=FALSE,comment.char = "")
 basename <- gsub(".vcf","",parameters[1,1])
 filelist <- list.files()
 logfilename <- paste(basename,".log",sep="")
@@ -55,10 +57,14 @@ j <- 1
 SNP_length <- dim(SNP_record)[1]
 
 while (j <= SNP_length) {
-  zero_one_count <- sum(temp[(which(temp$`#CHROM` %in% SNP_record[j,1])),((origcolnumber+1):(dim(temp)[2]))]==0)
-  zero_two_count <- sum(temp[(which(temp$`#CHROM` %in% SNP_record[j,2])),((origcolnumber+1):(dim(temp)[2]))]==0)
+  locusname <- temp %>% select(!!parameters[7,1])
+  temp <- add_column(temp,as.matrix(locusname)[,1],.before=TRUE)
+  names(temp)[1] <- "locusname"  
+  zero_one_count <- sum(temp[(which(temp$locusname %in% SNP_record[j,1])),((origcolnumber+1):(dim(temp)[2]))]==0)
+  zero_two_count <- sum(temp[(which(temp$locusname %in% SNP_record[j,2])),((origcolnumber+1):(dim(temp)[2]))]==0)
+  
   if (zero_one_count > zero_two_count) {
-    temp <- temp[-(which(temp$`#CHROM` %in% SNP_record[j,1])),]
+    temp <- temp[-(which(temp$locusname %in% SNP_record[j,1])),]
     SNP_record[j,(dim(SNP_record)[2])] <- SNP_record[j,1]    
     todelete <- c((which(SNP_record[,1] %in% SNP_record[j,1])),(which(SNP_record[,2] %in% SNP_record[j,1])))    
     if(length(todelete[(!(todelete <= j))])>0) {
@@ -68,7 +74,7 @@ while (j <= SNP_length) {
     j <- j + 1  
   } else {
     if (zero_two_count > zero_one_count) {
-      temp <- temp[-(which(temp$`#CHROM` %in% SNP_record[j,2])),]
+      temp <- temp[-(which(temp$locusname %in% SNP_record[j,2])),]
       SNP_record[j,(dim(SNP_record)[2])] <- SNP_record[j,2]    
       todelete <- c((which(SNP_record[,1] %in% SNP_record[j,2])),(which(SNP_record[,2] %in% SNP_record[j,2])))    
       if(length(todelete[(!(todelete <= j))])>0) {
@@ -78,8 +84,8 @@ while (j <= SNP_length) {
       j <- j + 1  
     } else {
       if (zero_two_count==zero_one_count) {
-        zero_one_count <- sum(temp[(which(temp$`#CHROM` %in% SNP_record[j,1])),((origcolnumber+1):(dim(temp)[2]))])
-        zero_two_count <- sum(temp[(which(temp$`#CHROM` %in% SNP_record[j,2])),((origcolnumber+1):(dim(temp)[2]))])         
+        zero_one_count <- sum(temp[(which(temp$locusname %in% SNP_record[j,1])),((origcolnumber+1):(dim(temp)[2]))])
+        zero_two_count <- sum(temp[(which(temp$locusname %in% SNP_record[j,2])),((origcolnumber+1):(dim(temp)[2]))])         
          if (zero_one_count < zero_two_count) {
             temp <- temp[-(which(temp$`#CHROM` %in% SNP_record[j,1])),]
             SNP_record[j,(dim(SNP_record)[2])] <- SNP_record[j,1]    
