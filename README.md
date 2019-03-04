@@ -7,7 +7,7 @@ More detail: this bash/Rscript pipeline first filters for bi-allelic SNPs (and w
 In addition to the filtered vcf files from each step, there will be a number of other files written out: \*.log (contains the number of SNPs/samples across each \*.vcf file, and which samples/loci were binned during any of the steps); \*.X_Y.Z_P.HWE (contains the HWE p-values by row for each locus/by column for each population. This will only include loci that passed the completeness filter); \*.X_Y.Z_P.HWE.\*.pop.vcf (population specific vcf files used for the ld steps. These include only loci that passed the completeness and HWE filters); \*.X_Y.Z_P.HWE.\*.pop.ld (per population files containing pairs of loci in LD as defined by having a RSq >= Q); \*.X_Y.Z_P.HWE.\*.pop.log (log files from PLINK identifying the pairs of loci in LD); and \*.X_Y.Z_P.HWE.Q.rsq (contains loci removed due to LD, and the locus retained that they were in linkage with).
 
 # required inputs
-This pipeline requires you have a vcf file output from your favourite pipeline (e.g. ANGSD, ipyrad, stacks) etc., a file called popmap.txt which contains the population code for each individual, and a parameters file called GBS_SNP_filter.txt. These files are described below. It also requires you to have previously installed the R packages dplyr, readr, and stringr, and for you to have R, vcftools, and PLINK in your path. e.g.
+This pipeline requires you have a vcf file output from your favourite pipeline (e.g. ANGSD, ipyrad, stacks) etc., a file called popmap.txt which contains the population code for each individual, and a parameters file called GBS_SNP_filter.txt. These files are described below. It also requires you to have previously installed the R packages dplyr, readr, tibble, and stringr, and for you to have R, vcftools, and PLINK in your path. e.g.
 ```
 export PATH="/software/R/bin:/software/bin/vcftools:/software/PLINK/1.09b3.32/plink:$PATH"
 ```
@@ -141,6 +141,8 @@ Hadley Wickham (2018). stringr: Simple, Consistent Wrappers for Common String Op
 Hadley Wickham, Romain Francois, Lionel Henry and Kirill Müller (2017). dplyr: A Grammar of Data Manipulation. R package version X.X.X. https://CRAN.R-project.org/package=dplyr
 
 Hadley Wickham, Jim Hester and Romain Francois (2017). readr: Read Rectangular Text Data. R package version X.X.X. https://CRAN.R-project.org/package=readr
+
+ Kirill Müller and Hadley Wickham (2018). tibble: Simple Data Frames. R package version 1.4.2. https://CRAN.R-project.org/package=tibble
 
 Purcell S, Neale B, Todd-Brown K, Thomas L, Ferreira MAR, Bender D, Maller J, Sklar P, de Bakker PIW, Daly MJ & Sham PC (2007). PLINK: a toolset for whole-genome association and population-based linkage analysis. American Journal of Human Genetics, 81.
 
