@@ -40,6 +40,34 @@ locus_35        74      .       G       A       13      PASS    NS=47;DP=56     
 
 ```
 
+Depending on how you generated your vcf file, you might have different ideas of what a "locus" is e.g. in the file above, a de novo assembled RAD/GBS dataset, the locus identifier is in the #CHROM column, and the position of the SNP within that locus is given in the POS column. In the following reference-assembled file:
+```
+##fileformat=VCFv4.2
+##fileDate=20180310
+##source="Stacks v1.48"
+##INFO=<ID=NS,Number=1,Type=Integer,Description="Number of Samples With Data">
+##INFO=<ID=AF,Number=.,Type=Float,Description="Allele Frequency">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Read Depth">
+##FORMAT=<ID=AD,Number=1,Type=Integer,Description="Allele Depth">
+##FORMAT=<ID=GL,Number=.,Type=Float,Description="Genotype Likelihood">
+##INFO=<ID=locori,Number=1,Type=Character,Description="Orientation the corresponding Stacks locus aligns in">
+#CHROM  POS     ID      REF     ALT     QUAL    FILTER  INFO    FORMAT  GFO-1   GFO-10  GFO-11  GFO-12  GFO-14  GFO-15  GFO-18  GFO-19  GFO-2
+NC_001606.1     14019   223111_6        A       G       .       PASS    NS=17;AF=0.059;locori=p GT:DP:AD        ./.:0:.,.       ./.:0:.,.
+NC_031697.1     109273  376732_24       A       G       .       PASS    NS=47;AF=0.074;locori=m GT:DP:AD        ./.:0:.,.       ./.:0:.,.
+NC_031697.1     113922  416173_45       G       C       .       PASS    NS=10;AF=0.050;locori=p GT:DP:AD        ./.:0:.,.       ./.:0:.,.
+NC_031697.1     114000  416174_43       T       G       .       PASS    NS=10;AF=0.050;locori=m GT:DP:AD        ./.:0:.,.       ./.:0:.,.
+NC_031697.1     114021  416174_22       C       G       .       PASS    NS=10;AF=0.050;locori=m GT:DP:AD        ./.:0:.,.       ./.:0:.,.
+NC_031697.1     114037  416174_6        G       A       .       PASS    NS=10;AF=0.050;locori=m GT:DP:AD        ./.:0:.,.       ./.:0:.,.
+NC_031697.1     121273  468073_5        T       A       .       PASS    NS=2;AF=0.250;locori=p  GT:DP:AD        ./.:0:.,.       ./.:0:.,.
+NC_031697.1     123294  408724_12       A       C       .       PASS    NS=11;AF=0.091;locori=m GT:DP:AD        ./.:0:.,.       ./.:0:.,.
+NC_031697.1     133307  88175_45        T       C       .       PASS    NS=7;AF=0.071;locori=p  GT:DP:AD        ./.:0:.,.       0/0:3:3,0
+NC_031697.1     141382  223355_61       A       T       .       PASS    NS=27;AF=0.093;locori=p GT:DP:AD        ./.:0:.,.       ./.:0:.,.
+NC_031697.1     147737  88272_58        C       A       .       PASS    NS=12;AF=0.083;locori=m GT:DP:AD        ./.:0:.,.       0/0:3:3,0
+NC_031697.1     147748  88272_47        C       A       .       PASS    NS=8;AF=0.125;locori=m  GT:DP:AD        ./.:0:.,.       0/0:3:3,0
+```
+The scaffold the locus was assembled at is given in the #CHROM column [FILL IN]
+
 # popmap.txt
 Sample name (exactly matching that in the vcf file) in the left hand column, separated by white space from population name in the right column
 ```
