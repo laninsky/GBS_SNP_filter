@@ -47,15 +47,12 @@ if (!((paste(basename,".oneSNP.vcf",sep="")) %in% filelist)) {#3A: if oneSNP.vcf
   notduplicated <- temp %>% filter(., (!(locusname %in% duplicatedloci))) 
   notduplicated <- notduplicated %>%  mutate_at(vars(11:dim(temp)[2]), .funs = funs(cov = gsub(":.*","",gsub("^.*?:","", . )))) 
   notduplicated <- notduplicated %>%  mutate_at(vars((dim(temp)[2]+1):(dim(notduplicated)[2])),funs(as.numeric)) 
-
-  
-  
-  duplicated <- temp %>% filter(., (`#CHROM` %in% duplicatedloci))
-  duplicated <- duplicated %>% mutate_at(vars(10:dim(temp)[2]), .funs = funs(cov = gsub(":.*","",gsub("^.*?:","", . )))) 
+  duplicated <- temp %>% filter(., (locusname %in% duplicatedloci))  
+  duplicated <- duplicated %>% mutate_at(vars(11:dim(temp)[2]), .funs = funs(cov = gsub(":.*","",gsub("^.*?:","", . ))))   
   duplicated <- duplicated %>%  mutate_at(vars((dim(temp)[2]+1):(dim(duplicated)[2])),funs(as.numeric))
-  duplicated_reduced <- NULL
+  duplicated_reduced <- NULL  
   for (i in duplicatedloci) {
-    temptemp <- duplicated %>% filter(., (`#CHROM` %in% i))
+    temptemp <- duplicated %>% filter(., (locusname %in% i))
     zerocounts <- unlist(lapply(1:(dim(temptemp)[1]),function(x){sum(temptemp[x,(dim(temp)[2]+1):(dim(temptemp)[2])]==0)})) 
     temptemp <- temptemp[(which(zerocounts==min(zerocounts))),]    
     covcounts <- rowSums(temptemp[,(dim(temp)[2]+1):(dim(temptemp)[2])])
@@ -74,7 +71,8 @@ if (!((paste(basename,".oneSNP.vcf",sep="")) %in% filelist)) {#3A: if oneSNP.vcf
   write(paste(basename,".oneSNP.vcf has the following number of SNPs:",sep=""),logfilename,append=TRUE)
   write((dim(temp)[1]),logfilename,append=TRUE) 
   write.table(headerrows,(paste(basename,".oneSNP.vcf",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE)  
-  write_delim(temp[,1:origcolnumber],(paste(basename,".oneSNP.vcf",sep="")),delim="\t",append=TRUE,col_names=TRUE)  
+  write_delim(temp[,2:origcolnumber],(paste(basename,".oneSNP.vcf",sep="")),delim="\t",append=TRUE,col_names=TRUE)
+  temp <- temp %>% select(-locusname)
 } else { #3AB if oneSNP.vcf does exist
     headerrows <- read_tsv("header_row.txt",col_names=FALSE)
     numberofheaders <- dim(headerrows)[1]
