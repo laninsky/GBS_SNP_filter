@@ -66,7 +66,7 @@ NC_031697.1     141382  223355_61       A       T       .       PASS    NS=27;AF
 NC_031697.1     147737  88272_58        C       A       .       PASS    NS=12;AF=0.083;locori=m GT:DP:AD        ./.:0:.,.       0/0:3:3,0
 NC_031697.1     147748  88272_47        C       A       .       PASS    NS=8;AF=0.125;locori=m  GT:DP:AD        ./.:0:.,.       0/0:3:3,0
 ```
-The scaffold the locus was assembled against is given in the #CHROM column, while the locus name is given in the ID column separated by the position within that locus by an underscore. For the GBS_SNP_filter.txt file below, you'll need to know what column you want the locus ID based on, and if there is a regular expression needed to extract the locus ID from the contents of that column e.g. 
+The scaffold the locus was assembled against is given in the #CHROM column, while the locus name is given in the ID column separated by the position within that locus by an underscore. For the GBS_SNP_filter.txt file below, you'll need to know what column you want the locus ID based on, and if there is a regular expression needed to remove everything except the locus ID from the contents of that column e.g. for above `_.*`
 
 # popmap.txt
 Sample name (exactly matching that in the vcf file) in the left hand column, separated by white space from population name in the right column
