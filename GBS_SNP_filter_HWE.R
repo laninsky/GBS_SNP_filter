@@ -1,12 +1,17 @@
+# Loading in required packages
 if (!require('dplyr')) install.packages('dplyr'); library('dplyr')
 if (!require('readr')) install.packages('readr'); library('readr')
 if (!require('stringr')) install.packages('stringr'); library('stringr')
-#library(tidyverse) # I've had issues loading library(tidyverse) and R crashing using the sbatch syste
-parameters <- read.table("GBS_SNP_filter.txt",header=FALSE,stringsAsFactors=FALSE)
+if (!require('tibble')) install.packages('tibble'); library('tibble')
+#library(tidyverse) # I've had issues loading library(tidyverse) and R crashing using the sbatch system
+
+# Reading in the parameters file, and getting names/creating logs based on this
+parameters <- read.table("GBS_SNP_filter.txt",header=FALSE,stringsAsFactors=FALSE,comment.char = "")
 basename <- gsub(".vcf","",parameters[1,1])
 filelist <- list.files()
 logfilename <- paste(basename,".log",sep="")
 
+# Using the presence of "," in the ALT allele column to filter out SNPs with more than two states
 if (!((paste(basename,".biallelic.vcf",sep="")) %in% filelist)) {#1A  what to do if biallelic doesn't exist
   temp <- read_tsv("temp",col_names=TRUE)
   write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)
@@ -27,17 +32,24 @@ if (!((paste(basename,".biallelic.vcf",sep="")) %in% filelist)) {#1A  what to do
   } #2B  
 } #1B  
 
+# Taking just one SNP per locus, finding loci with more than one SNP based on duplicate loci names
 if (!((paste(basename,".oneSNP.vcf",sep="")) %in% filelist)) {#3A: if oneSNP.vcf doesn't exist, filtering for SNPs with the greatest coverage across individuals
   locusname <- temp %>% select(!!parameters[7,1])
-  locusname <- as_tibble(gsub(parameters[8,1],"",as.matrix(locusname)))
-  #UP TO HERE PROvIDING LOCUSNAME COLUMN
-  duplicatedloci <- unique(temp$`#CHROM`[which(duplicated(temp$`#CHROM`)==TRUE)])
+  if (!(is.na(parameters[8,1]))) {
+    locusname <- as_tibble(gsub(parameters[8,1],"",as.matrix(locusname)))
+  }
+  temp <- add_column(temp,as.matrix(locusname)[,1],.before=TRUE)
+  names(temp)[1] <- "locusname"
+  duplicatedloci <- unique(temp$locusname[which(duplicated(temp$locusname)==TRUE)])  
   write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)
   write("The following number of loci have more than one SNP:",logfilename,append=TRUE) 
   write(length(duplicatedloci),logfilename,append=TRUE)
-  notduplicated <- temp %>% filter(., (!(`#CHROM` %in% duplicatedloci)))
-  notduplicated <- notduplicated %>%  mutate_at(vars(10:dim(temp)[2]), .funs = funs(cov = gsub(":.*","",gsub("^.*?:","", . )))) 
+  notduplicated <- temp %>% filter(., (!(locusname %in% duplicatedloci))) 
+  notduplicated <- notduplicated %>%  mutate_at(vars(11:dim(temp)[2]), .funs = funs(cov = gsub(":.*","",gsub("^.*?:","", . )))) 
   notduplicated <- notduplicated %>%  mutate_at(vars((dim(temp)[2]+1):(dim(notduplicated)[2])),funs(as.numeric)) 
+
+  
+  
   duplicated <- temp %>% filter(., (`#CHROM` %in% duplicatedloci))
   duplicated <- duplicated %>% mutate_at(vars(10:dim(temp)[2]), .funs = funs(cov = gsub(":.*","",gsub("^.*?:","", . )))) 
   duplicated <- duplicated %>%  mutate_at(vars((dim(temp)[2]+1):(dim(duplicated)[2])),funs(as.numeric))
