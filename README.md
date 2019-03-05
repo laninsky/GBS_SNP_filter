@@ -1,4 +1,4 @@
-# GBS_SNP_filter v1.04
+# GBS_SNP_filter v1.10
 
 After you get your ddRADseq/GBS dataset through your favourite pipeline, you might want to further filter the SNPs contained in the vcf before doing downstream analysis. This set of scripts filters for bi-allelicness, one SNP/locus, completeness, HWD and LD, and outputs vcf files for each filtering stage.
 
@@ -157,6 +157,8 @@ H. Wickham. Reshaping data with the reshape package. Journal of Statistical Soft
 Goudet, J., 2005. Hierfstat, a package for R to compute and test hierarchical F‐statistics. Molecular Ecology Notes, 5(1), pp.184-186.
 
 # Version history
+
+1.10: Allowed the column that locus names would be based on (for identifying multiple SNPs/locus etc) to be changed. This allows for reference-guided RADseq assemblies to retain multiple SNPs per scaffold (not possible if the #CHROM column is always used - this ditches everything but one SNP/scaffold). Thanks to [OmidJa](https://github.com/OmidJa) for this suggestion.
 
 1.04: Modified GBS_SNP_filter_rsq.R in response to https://github.com/laninsky/GBS_SNP_filter/issues/1: I had been assuming that at least one population would end being dropped due to individual samples failing! 
 
