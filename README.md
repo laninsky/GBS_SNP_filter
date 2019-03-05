@@ -158,7 +158,7 @@ Goudet, J., 2005. Hierfstat, a package for R to compute and test hierarchical Fâ
 
 # Version history
 
-1.10: Allowed the column that locus names would be based on (for identifying multiple SNPs/locus etc) to be changed. This allows for reference-guided RADseq assemblies to retain multiple SNPs per scaffold (not possible if the #CHROM column is always used - this ditches everything but one SNP/scaffold). Thanks to [OmidJa](https://github.com/OmidJa) for this suggestion.
+1.10: Allowed the column that locus names would be based on (for identifying multiple SNPs/locus etc) to be changed. This allows for reference-guided RADseq assemblies to retain multiple SNPs per scaffold (not possible if the #CHROM column is always used - this ditches everything but one SNP/scaffold). Thanks to [OmidJa](https://github.com/OmidJa) for this suggestion. Also modified the name of the \*.rsq file as it was printed out to the log. 
 
 1.04: Modified GBS_SNP_filter_rsq.R in response to https://github.com/laninsky/GBS_SNP_filter/issues/1: I had been assuming that at least one population would end being dropped due to individual samples failing! 
 
