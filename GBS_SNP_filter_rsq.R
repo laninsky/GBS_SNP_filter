@@ -55,13 +55,13 @@ names(SNP_record)[(dim(SNP_record)[2])] <- "removed"
 
 j <- 1
 SNP_length <- dim(SNP_record)[1]
+locusname <- temp %>% select(!!parameters[7,1])
+temp <- add_column(temp,as.matrix(locusname)[,1],.before=TRUE)
+names(temp)[1] <- "locusname"  
 
 while (j <= SNP_length) {
-  locusname <- temp %>% select(!!parameters[7,1])
-  temp <- add_column(temp,as.matrix(locusname)[,1],.before=TRUE)
-  names(temp)[1] <- "locusname"  
-  zero_one_count <- sum(temp[(which(temp$locusname %in% SNP_record[j,1])),((origcolnumber+1):(dim(temp)[2]))]==0)
-  zero_two_count <- sum(temp[(which(temp$locusname %in% SNP_record[j,2])),((origcolnumber+1):(dim(temp)[2]))]==0)
+  zero_one_count <- sum(temp[(which(temp$locusname %in% SNP_record[j,1])),((origcolnumber+2):(dim(temp)[2]))]==0)
+  zero_two_count <- sum(temp[(which(temp$locusname %in% SNP_record[j,2])),((origcolnumber+2):(dim(temp)[2]))]==0)
   
   if (zero_one_count > zero_two_count) {
     temp <- temp[-(which(temp$locusname %in% SNP_record[j,1])),]
@@ -84,10 +84,10 @@ while (j <= SNP_length) {
       j <- j + 1  
     } else {
       if (zero_two_count==zero_one_count) {
-        zero_one_count <- sum(temp[(which(temp$locusname %in% SNP_record[j,1])),((origcolnumber+1):(dim(temp)[2]))])
-        zero_two_count <- sum(temp[(which(temp$locusname %in% SNP_record[j,2])),((origcolnumber+1):(dim(temp)[2]))])         
+        zero_one_count <- sum(temp[(which(temp$locusname %in% SNP_record[j,1])),((origcolnumber+2):(dim(temp)[2]))])
+        zero_two_count <- sum(temp[(which(temp$locusname %in% SNP_record[j,2])),((origcolnumber+2):(dim(temp)[2]))])         
          if (zero_one_count < zero_two_count) {
-            temp <- temp[-(which(temp$`#CHROM` %in% SNP_record[j,1])),]
+            temp <- temp[-(which(temp$locusname %in% SNP_record[j,1])),]
             SNP_record[j,(dim(SNP_record)[2])] <- SNP_record[j,1]    
             todelete <- c((which(SNP_record[,1] %in% SNP_record[j,1])),(which(SNP_record[,2] %in% SNP_record[j,1])))    
             if(length(todelete[(!(todelete <= j))])>0) {
@@ -97,7 +97,7 @@ while (j <= SNP_length) {
             j <- j + 1  
           } else {
             if (zero_two_count < zero_one_count) {
-              temp <- temp[-(which(temp$`#CHROM` %in% SNP_record[j,2])),]
+              temp <- temp[-(which(temp$locusname %in% SNP_record[j,2])),]
               SNP_record[j,(dim(SNP_record)[2])] <- SNP_record[j,2]    
               todelete <- c((which(SNP_record[,1] %in% SNP_record[j,2])),(which(SNP_record[,2] %in% SNP_record[j,2])))    
               if(length(todelete[(!(todelete <= j))])>0) {
@@ -107,7 +107,7 @@ while (j <= SNP_length) {
               j <- j + 1  
             } else {
               if (zero_two_count==zero_one_count) {
-                 temp <- temp[-(which(temp$`#CHROM` %in% SNP_record[j,2])),]
+                 temp <- temp[-(which(temp$locusname %in% SNP_record[j,2])),]
                  SNP_record[j,(dim(SNP_record)[2])] <- SNP_record[j,2]    
                  todelete <- c((which(SNP_record[,1] %in% SNP_record[j,2])),(which(SNP_record[,2] %in% SNP_record[j,2])))    
                  if(length(todelete[(!(todelete <= j))])>0) {
@@ -133,6 +133,6 @@ write(paste(dim(SNP_record)[1]," loci will be removed as they were in linkage wi
 write(paste("These loci will be listed in ",basename,"_",parameters[4,1],"_",parameters[6,1],".HWE.",parameters[5,1],".rsq",sep=""),logfilename,append=TRUE)
 write.table(SNP_record,paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE.",parameters[5,1],".rsq",sep=""),row.names=FALSE,col.names=TRUE,quote=FALSE)  
 write.table(headerrows,(paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE.",parameters[5,1],".ld.vcf",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE)
-write_delim(temp[,1:origcolnumber],(paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE.",parameters[5,1],".ld.vcf",sep="")),delim="\t",append=TRUE,col_names=TRUE)    
+write_delim(temp[,2:(origcolnumber+1)],(paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE.",parameters[5,1],".ld.vcf",sep="")),delim="\t",append=TRUE,col_names=TRUE)    
 write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)  
 write(paste("Following this filtering ",basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE.",parameters[5,1],".ld.vcf has been written out, containing ",(dim(temp)[1])," SNPs and ", (origcolnumber-9), " samples",sep=""),logfilename,append=TRUE)   
