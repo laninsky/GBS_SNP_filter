@@ -1,4 +1,4 @@
-# GBS_SNP_filter v1.04
+# GBS_SNP_filter v1.10
 
 After you get your ddRADseq/GBS dataset through your favourite pipeline, you might want to further filter the SNPs contained in the vcf before doing downstream analysis. This set of scripts filters for bi-allelicness, one SNP/locus, completeness, HWD and LD, and outputs vcf files for each filtering stage.
 
@@ -7,7 +7,7 @@ More detail: this bash/Rscript pipeline first filters for bi-allelic SNPs (and w
 In addition to the filtered vcf files from each step, there will be a number of other files written out: \*.log (contains the number of SNPs/samples across each \*.vcf file, and which samples/loci were binned during any of the steps); \*.X_Y.Z_P.HWE (contains the HWE p-values by row for each locus/by column for each population. This will only include loci that passed the completeness filter); \*.X_Y.Z_P.HWE.\*.pop.vcf (population specific vcf files used for the ld steps. These include only loci that passed the completeness and HWE filters); \*.X_Y.Z_P.HWE.\*.pop.ld (per population files containing pairs of loci in LD as defined by having a RSq >= Q); \*.X_Y.Z_P.HWE.\*.pop.log (log files from PLINK identifying the pairs of loci in LD); and \*.X_Y.Z_P.HWE.Q.rsq (contains loci removed due to LD, and the locus retained that they were in linkage with).
 
 # required inputs
-This pipeline requires you have a vcf file output from your favourite pipeline (e.g. ANGSD, ipyrad, stacks) etc., a file called popmap.txt which contains the population code for each individual, and a parameters file called GBS_SNP_filter.txt. These files are described below. It also requires you to have previously installed the R packages dplyr, readr, and stringr, and for you to have R, vcftools, and PLINK in your path. e.g.
+This pipeline requires you have a vcf file output from your favourite pipeline (e.g. ANGSD, ipyrad, stacks) etc., a file called popmap.txt which contains the population code for each individual, and a parameters file called GBS_SNP_filter.txt. These files are described below. It also requires you to have previously installed the R packages dplyr, readr, tibble, and stringr, and for you to have R, vcftools, and PLINK in your path. e.g.
 ```
 export PATH="/software/R/bin:/software/bin/vcftools:/software/PLINK/1.09b3.32/plink:$PATH"
 ```
@@ -40,6 +40,34 @@ locus_35        74      .       G       A       13      PASS    NS=47;DP=56     
 
 ```
 
+Depending on how you generated your vcf file, you might have different ideas of what a "locus" is e.g. in the file above, a de novo assembled RAD/GBS dataset, the locus identifier is in the #CHROM column, and the position of the SNP within that locus is given in the POS column. In the following reference-assembled file:
+```
+##fileformat=VCFv4.2
+##fileDate=20180310
+##source="Stacks v1.48"
+##INFO=<ID=NS,Number=1,Type=Integer,Description="Number of Samples With Data">
+##INFO=<ID=AF,Number=.,Type=Float,Description="Allele Frequency">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Read Depth">
+##FORMAT=<ID=AD,Number=1,Type=Integer,Description="Allele Depth">
+##FORMAT=<ID=GL,Number=.,Type=Float,Description="Genotype Likelihood">
+##INFO=<ID=locori,Number=1,Type=Character,Description="Orientation the corresponding Stacks locus aligns in">
+#CHROM  POS     ID      REF     ALT     QUAL    FILTER  INFO    FORMAT  GFO-1   GFO-10  GFO-11  GFO-12  GFO-14  GFO-15  GFO-18  GFO-19  GFO-2
+NC_001606.1     14019   223111_6        A       G       .       PASS    NS=17;AF=0.059;locori=p GT:DP:AD        ./.:0:.,.       ./.:0:.,.
+NC_031697.1     109273  376732_24       A       G       .       PASS    NS=47;AF=0.074;locori=m GT:DP:AD        ./.:0:.,.       ./.:0:.,.
+NC_031697.1     113922  416173_45       G       C       .       PASS    NS=10;AF=0.050;locori=p GT:DP:AD        ./.:0:.,.       ./.:0:.,.
+NC_031697.1     114000  416174_43       T       G       .       PASS    NS=10;AF=0.050;locori=m GT:DP:AD        ./.:0:.,.       ./.:0:.,.
+NC_031697.1     114021  416174_22       C       G       .       PASS    NS=10;AF=0.050;locori=m GT:DP:AD        ./.:0:.,.       ./.:0:.,.
+NC_031697.1     114037  416174_6        G       A       .       PASS    NS=10;AF=0.050;locori=m GT:DP:AD        ./.:0:.,.       ./.:0:.,.
+NC_031697.1     121273  468073_5        T       A       .       PASS    NS=2;AF=0.250;locori=p  GT:DP:AD        ./.:0:.,.       ./.:0:.,.
+NC_031697.1     123294  408724_12       A       C       .       PASS    NS=11;AF=0.091;locori=m GT:DP:AD        ./.:0:.,.       ./.:0:.,.
+NC_031697.1     133307  88175_45        T       C       .       PASS    NS=7;AF=0.071;locori=p  GT:DP:AD        ./.:0:.,.       0/0:3:3,0
+NC_031697.1     141382  223355_61       A       T       .       PASS    NS=27;AF=0.093;locori=p GT:DP:AD        ./.:0:.,.       ./.:0:.,.
+NC_031697.1     147737  88272_58        C       A       .       PASS    NS=12;AF=0.083;locori=m GT:DP:AD        ./.:0:.,.       0/0:3:3,0
+NC_031697.1     147748  88272_47        C       A       .       PASS    NS=8;AF=0.125;locori=m  GT:DP:AD        ./.:0:.,.       0/0:3:3,0
+```
+The scaffold the locus was assembled against is given in the #CHROM column, while the locus name is given in the ID column separated by the position within that locus by an underscore. For the GBS_SNP_filter.txt file below, you'll need to know what column you want the locus ID based on, and if there is a regular expression needed to remove everything except the locus ID from the contents of that column e.g. for above `_.*`. The locus name should not have a colon in it, because everything following the colon will be stripped away following the LD step.
+
 # popmap.txt
 Sample name (exactly matching that in the vcf file) in the left hand column, separated by white space from population name in the right column
 ```
@@ -54,7 +82,9 @@ B109470-CGTGGTGCA Nuku
 ```
 
 # GBS_SNP_filter.txt
-On the first line you need to give the name of your original vcf file that will be processed. On the second line you should give the proportion of samples that has to be equalled or exceeded for a SNP to be retained in the dataset (e.g 0.85 = a SNP needs to be found in 85% or more of total samples to be retained). On the third line you need to give the the proportion of missing loci that will be tolerated for individual samples before they will be removed from the dataset (e.g. 0.9 = a sample can have up to 90% missing data before it is removed from the dataset). On the fourth line you need to give the p-value cut-off for determining whether a locus is out of HWE within a population. On the fifth line you need to give the r^2 cut-off for determining whether SNPs are in LD with each other within a population. On the sixth line you need to give the number of populations a locus has to be out of HWE/in LD across in before that locus is discarded. 
+On the first line you need to give the name of your original vcf file that will be processed. On the second line you should give the proportion of samples that has to be equalled or exceeded for a SNP to be retained in the dataset (e.g 0.85 = a SNP needs to be found in 85% or more of total samples to be retained). On the third line you need to give the the proportion of missing loci that will be tolerated for individual samples before they will be removed from the dataset (e.g. 0.9 = a sample can have up to 90% missing data before it is removed from the dataset). On the fourth line you need to give the p-value cut-off for determining whether a locus is out of HWE within a population. On the fifth line you need to give the r^2 cut-off for determining whether SNPs are in LD with each other within a population. On the sixth line you need to give the number of populations a locus has to be out of HWE/in LD across in before that locus is discarded. On the seventh line you need to give the column header for where the locus id you wish to use resides. On the eighth line you need to give any regular expression needed to modify the contents of the column specified on Line 7 to give just the locus name.
+
+e.g. for the first vcf file presented above (make sure to leave a blank line on Line 7 if no regex pattern required)
 ```
 robin.vcf
 0.85
@@ -62,10 +92,24 @@ robin.vcf
 0.05
 0.5
 3
+#CHROM
+
+```
+
+e.g. for the reference-guided vcf file presented above
+```
+batch_1.vcf
+0.65
+0.9
+0.01
+0.5
+3
+ID
+_.*
 ```
 
 # To run GBS_SNP_filter
-Make sure GBS_SNP_filter.sh; GBS_SNP_filter_HWE.R; GBS_SNP_filter_rsq.R; and your inpt vcf file, your popmap.txt, and your GBS_SNP_filter.txt files are located in your working directory. Also make sure you have previously installed the R packages dplyr, readr, and stringr, and have R, vcftools, and PLINK in your path. Then on the terminal:
+Make sure GBS_SNP_filter.sh; GBS_SNP_filter_HWE.R; GBS_SNP_filter_rsq.R; and your inpt vcf file, your popmap.txt, and your GBS_SNP_filter.txt files are located in your working directory. Also make sure you have previously installed the R packages dplyr, readr, tibble and stringr, and have R, vcftools, and PLINK in your path. Then on the terminal:
 ```
 bash GBS_SNP_filter.sh
 ```
@@ -98,6 +142,8 @@ Hadley Wickham, Romain Francois, Lionel Henry and Kirill Müller (2017). dplyr: 
 
 Hadley Wickham, Jim Hester and Romain Francois (2017). readr: Read Rectangular Text Data. R package version X.X.X. https://CRAN.R-project.org/package=readr
 
+ Kirill Müller and Hadley Wickham (2018). tibble: Simple Data Frames. R package version 1.4.2. https://CRAN.R-project.org/package=tibble
+
 Purcell S, Neale B, Todd-Brown K, Thomas L, Ferreira MAR, Bender D, Maller J, Sklar P, de Bakker PIW, Daly MJ & Sham PC (2007). PLINK: a toolset for whole-genome association and population-based linkage analysis. American Journal of Human Genetics, 81.
 
 Petr Danecek, Adam Auton, Goncalo Abecasis, Cornelis A. Albers, Eric Banks, Mark A. DePristo, Robert Handsaker, Gerton Lunter, Gabor Marth, Stephen T. Sherry, Gilean McVean, Richard Durbin and 1000 Genomes Project Analysis Group. 2011. The Variant Call Format and VCFtools. Bioinformatics. http://dx.doi.org/10.1093/bioinformatics/btr330
@@ -111,6 +157,8 @@ H. Wickham. Reshaping data with the reshape package. Journal of Statistical Soft
 Goudet, J., 2005. Hierfstat, a package for R to compute and test hierarchical F‐statistics. Molecular Ecology Notes, 5(1), pp.184-186.
 
 # Version history
+
+1.10: Allowed the column that locus names would be based on (for identifying multiple SNPs/locus etc) to be changed. This allows for reference-guided RADseq assemblies to retain multiple SNPs per scaffold (not possible if the #CHROM column is always used - this ditches everything but one SNP/scaffold). Thanks to [OmidJa](https://github.com/OmidJa) for this suggestion. Also modified the name of the \*.rsq file as it was printed out to the log. 
 
 1.04: Modified GBS_SNP_filter_rsq.R in response to https://github.com/laninsky/GBS_SNP_filter/issues/1: I had been assuming that at least one population would end being dropped due to individual samples failing! 
 

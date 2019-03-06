@@ -1,12 +1,17 @@
+# Loading in required packages
 if (!require('dplyr')) install.packages('dplyr'); library('dplyr')
 if (!require('readr')) install.packages('readr'); library('readr')
 if (!require('stringr')) install.packages('stringr'); library('stringr')
-#library(tidyverse) # I've had issues loading library(tidyverse) and R crashing using the sbatch syste
-parameters <- read.table("GBS_SNP_filter.txt",header=FALSE,stringsAsFactors=FALSE)
+if (!require('tibble')) install.packages('tibble'); library('tibble')
+#library(tidyverse) # I've had issues loading library(tidyverse) and R crashing using the sbatch system
+
+# Reading in the parameters file, and getting names/creating logs based on this
+parameters <- read.table("GBS_SNP_filter.txt",header=FALSE,stringsAsFactors=FALSE,comment.char = "")
 basename <- gsub(".vcf","",parameters[1,1])
 filelist <- list.files()
 logfilename <- paste(basename,".log",sep="")
 
+# Using the presence of "," in the ALT allele column to filter out SNPs with more than two states
 if (!((paste(basename,".biallelic.vcf",sep="")) %in% filelist)) {#1A  what to do if biallelic doesn't exist
   temp <- read_tsv("temp",col_names=TRUE)
   write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)
@@ -27,20 +32,27 @@ if (!((paste(basename,".biallelic.vcf",sep="")) %in% filelist)) {#1A  what to do
   } #2B  
 } #1B  
 
+# Taking just one SNP per locus, finding loci with more than one SNP based on duplicate loci names
 if (!((paste(basename,".oneSNP.vcf",sep="")) %in% filelist)) {#3A: if oneSNP.vcf doesn't exist, filtering for SNPs with the greatest coverage across individuals
-  duplicatedloci <- unique(temp$`#CHROM`[which(duplicated(temp$`#CHROM`)==TRUE)])
+  locusname <- temp %>% select(!!parameters[7,1])
+  if (!(is.na(parameters[8,1]))) {
+    locusname <- as_tibble(gsub(parameters[8,1],"",as.matrix(locusname)))
+  }
+  temp <- add_column(temp,as.matrix(locusname)[,1],.before=TRUE)
+  names(temp)[1] <- "locusname"
+  duplicatedloci <- unique(temp$locusname[which(duplicated(temp$locusname)==TRUE)])  
   write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)
   write("The following number of loci have more than one SNP:",logfilename,append=TRUE) 
   write(length(duplicatedloci),logfilename,append=TRUE)
-  notduplicated <- temp %>% filter(., (!(`#CHROM` %in% duplicatedloci)))
-  notduplicated <- notduplicated %>%  mutate_at(vars(10:dim(temp)[2]), .funs = funs(cov = gsub(":.*","",gsub("^.*?:","", . )))) 
+  notduplicated <- temp %>% filter(., (!(locusname %in% duplicatedloci))) 
+  notduplicated <- notduplicated %>%  mutate_at(vars(11:dim(temp)[2]), .funs = funs(cov = gsub(":.*","",gsub("^.*?:","", . )))) 
   notduplicated <- notduplicated %>%  mutate_at(vars((dim(temp)[2]+1):(dim(notduplicated)[2])),funs(as.numeric)) 
-  duplicated <- temp %>% filter(., (`#CHROM` %in% duplicatedloci))
-  duplicated <- duplicated %>% mutate_at(vars(10:dim(temp)[2]), .funs = funs(cov = gsub(":.*","",gsub("^.*?:","", . )))) 
+  duplicated <- temp %>% filter(., (locusname %in% duplicatedloci))  
+  duplicated <- duplicated %>% mutate_at(vars(11:dim(temp)[2]), .funs = funs(cov = gsub(":.*","",gsub("^.*?:","", . ))))   
   duplicated <- duplicated %>%  mutate_at(vars((dim(temp)[2]+1):(dim(duplicated)[2])),funs(as.numeric))
-  duplicated_reduced <- NULL
+  duplicated_reduced <- NULL  
   for (i in duplicatedloci) {
-    temptemp <- duplicated %>% filter(., (`#CHROM` %in% i))
+    temptemp <- duplicated %>% filter(., (locusname %in% i))
     zerocounts <- unlist(lapply(1:(dim(temptemp)[1]),function(x){sum(temptemp[x,(dim(temp)[2]+1):(dim(temptemp)[2])]==0)})) 
     temptemp <- temptemp[(which(zerocounts==min(zerocounts))),]    
     covcounts <- rowSums(temptemp[,(dim(temp)[2]+1):(dim(temptemp)[2])])
@@ -59,7 +71,8 @@ if (!((paste(basename,".oneSNP.vcf",sep="")) %in% filelist)) {#3A: if oneSNP.vcf
   write(paste(basename,".oneSNP.vcf has the following number of SNPs:",sep=""),logfilename,append=TRUE)
   write((dim(temp)[1]),logfilename,append=TRUE) 
   write.table(headerrows,(paste(basename,".oneSNP.vcf",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE)  
-  write_delim(temp[,1:origcolnumber],(paste(basename,".oneSNP.vcf",sep="")),delim="\t",append=TRUE,col_names=TRUE)  
+  write_delim(temp[,2:origcolnumber],(paste(basename,".oneSNP.vcf",sep="")),delim="\t",append=TRUE,col_names=TRUE)
+  temp <- temp %>% select(-locusname)
 } else { #3AB if oneSNP.vcf does exist
     headerrows <- read_tsv("header_row.txt",col_names=FALSE)
     numberofheaders <- dim(headerrows)[1]
@@ -97,11 +110,17 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".vcf",sep="")) %i
 }  #4B
 
 if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE.vcf",sep="")) %in% filelist)) { #5A: If we haven't carried out HWE filtering for files with this combo of parameters yet
+  locusname <- temp %>% select(!!parameters[7,1])
+  if (!(is.na(parameters[8,1]))) {
+    locusname <- as_tibble(gsub(parameters[8,1],"",as.matrix(locusname)))
+  }
+  temp <- add_column(temp,as.matrix(locusname)[,1],.before=TRUE)
+  names(temp)[1] <- "locusname"
   if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE",sep="")) %in% filelist)) { # 6A: If locus specific HWE values have not already been printed out  
     popmap <- read.table("popmap.txt",header=FALSE,stringsAsFactors=FALSE)
     popnames <- unique(popmap[,2])
-    temptemp <- temp[,1:origcolnumber] 
     hwetable <- NULL
+    temptemp <- temp[,1:(origcolnumber+1)]     
     for (k in 1:length(popnames)) { #8A: for each population
       print(paste("Up to ",k," out of ",length(popnames), " populations",sep="")) 
       temptemppop <- select(temptemp, which(names(temptemp) %in% (popmap[(which(popmap[,2]==popnames[k])),1])))
@@ -151,11 +170,12 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1
   write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)
   write(paste("The following loci (p-values given) will be removed as more than ",parameters[6,1]," populations had a HWE p-value of <",parameters[4,1],sep=""),logfilename,append=TRUE)
   write.table(hwetablebin,logfilename,append=TRUE,row.names=FALSE,col.names=TRUE,quote=FALSE)  
-  temp <- temp %>% filter(., (!(`#CHROM` %in% (hwetablebin[,1]))))
+  temp <- temp %>% filter(., (!(locusname %in% (hwetablebin[,1]))))
   write.table(headerrows,(paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE.vcf",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE)
-  write_delim(temp[,1:origcolnumber],(paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE.vcf",sep="")),delim="\t",append=TRUE,col_names=TRUE)    
+  write_delim(temp[,2:(origcolnumber+1)],(paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE.vcf",sep="")),delim="\t",append=TRUE,col_names=TRUE)    
   write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)  
   write(paste("Following this filtering ",basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE.vcf has been written out, containing ",(dim(temp)[1])," SNPs and ", (origcolnumber-9), " samples",sep=""),logfilename,append=TRUE)   
+  temp <- temp %>% select(-locusname)
 } else {  #5AB
   headerrows <- read_tsv("header_row.txt",col_names=FALSE)
   numberofheaders <- dim(headerrows)[1]
