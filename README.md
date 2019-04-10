@@ -121,6 +121,12 @@ srun bash GBS_SNP_filter.sh
 # Troubleshooting
 If you find that too many SNPs are being discarded based on the SNP completeness filter (e.g. being found in >= 85% of the samples), it may be that you have had a larger-than-expected number of samples fail. I would suggest changing the second line of GBS_SNP_filter.txt to 0.0 and not filter SNPs based on this metric the first time around. Following filtering of the datasets for samples with high levels of missing data, you could then take the output vcf and run it through another round of filtering, bumping this second line back up to a more stringent value (e.g. 0.85)
 
+In the LD step, the following message is safe to ignore (introduced in v 1.11 with the switch to read_table2 - see version history below)
+```
+Warning message:
+Missing column names filled in: 'X8' [8] 
+```
+
 # Further utilities
 In the utilities folder are scripts for divvying out your "final" vcf into population-specific vcf files, and using reshape, vcfR, hierfstat and inbreedR to calculate individual-level (multi-locus heterozygosity) and population-level (He) estimates of heterozygosity.
 
