@@ -84,7 +84,7 @@ B109470-CGTGGTGCA Nuku
 # GBS_SNP_filter.txt
 On the first line you need to give the name of your original vcf file that will be processed. On the second line you should give the proportion of samples that has to be equalled or exceeded for a SNP to be retained in the dataset (e.g 0.85 = a SNP needs to be found in 85% or more of total samples to be retained). On the third line you need to give the the proportion of missing loci that will be tolerated for individual samples before they will be removed from the dataset (e.g. 0.9 = a sample can have up to 90% missing data before it is removed from the dataset). On the fourth line you need to give the p-value cut-off for determining whether a locus is out of HWE within a population. On the fifth line you need to give the r^2 cut-off for determining whether SNPs are in LD with each other within a population. On the sixth line you need to give the number of populations a locus has to be out of HWE/in LD across in before that locus is discarded. On the seventh line you need to give the column header for where the locus id you wish to use resides. On the eighth line you need to give any regular expression needed to modify the contents of the column specified on Line 7 to give just the locus name.
 
-e.g. for the first vcf file presented above (make sure to leave a blank line on Line 7 if no regex pattern required)
+e.g. for the first vcf file presented above (make sure to leave a blank line on Line 8 if no regex pattern required)
 ```
 robin.vcf
 0.85
