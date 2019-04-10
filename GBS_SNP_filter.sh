@@ -4,8 +4,8 @@ basename=`echo $filename | sed 's/.vcf//g'`
 if [ -f $basename.biallelic.vcf ]
 then
   :
-else 
-  grep "##" $filename >> header_row.txt;
+else
+  grep "##" $filename > header_row.txt;
   headerlineno=`wc -l header_row.txt | awk '{print $1}'`;
   headerlineno=$((headerlineno+1))
   tail -n +$headerlineno $filename > temp;
