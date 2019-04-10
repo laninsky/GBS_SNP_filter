@@ -1,3 +1,6 @@
+if [ `wc -l GBS_SNP_filter.txt | awk '{print $1}'` -eq 8 ]
+then
+
 filename=`cat GBS_SNP_filter.txt | head -n 1`	
 basename=`echo $filename | sed 's/.vcf//g'`	
 
@@ -26,3 +29,7 @@ done
 Rscript GBS_SNP_filter_rsq.R
 
 rm temp
+
+else
+echo "Your GBS_SNP_filter.txt file does not have 8 lines. Are you missing parameters/a blank line on Line 8?"
+fi
