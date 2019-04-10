@@ -45,7 +45,7 @@ if (!((paste(basename,".oneSNP.vcf",sep="")) %in% filelist)) {#3A: if oneSNP.vcf
   write("The following number of loci have more than one SNP:",logfilename,append=TRUE) 
   write(length(duplicatedloci),logfilename,append=TRUE)
   notduplicated <- temp %>% filter(., (!(locusname %in% duplicatedloci))) 
-  notduplicated <- notduplicated %>%  mutate_at(vars(11:dim(temp)[2]), .funs = funs(cov = gsub(":.*","",gsub("^.*?:","", . )))) 
+  notduplicated <- notduplicated %>%  mutate_at(vars(11:dim(temp)[2]), .funs = funs(cov = gsub("./.","0",gsub(":.*","",gsub("^.*?:","", . )))))
   notduplicated <- notduplicated %>%  mutate_at(vars((dim(temp)[2]+1):(dim(notduplicated)[2])),funs(as.numeric)) 
   duplicated <- temp %>% filter(., (locusname %in% duplicatedloci))  
   duplicated <- duplicated %>% mutate_at(vars(11:dim(temp)[2]), .funs = funs(cov = gsub(":.*","",gsub("^.*?:","", . ))))   
