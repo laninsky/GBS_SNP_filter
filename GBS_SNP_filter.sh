@@ -17,7 +17,8 @@ minrsq=`head -n 5 GBS_SNP_filter.txt | tail -n 1`
 for i in `ls *pop.vcf`; do
     ldname=`echo $i | sed 's/.vcf//g'`
     vcftools --vcf $i --plink --out $ldname.plink
-    plink --r2 --ld-window-r2 $minrsq --file $ldname.plink --out $ldname
+    Rscript GBS_SNP_filter_chrom_modifier.R
+    plink --allow-extra-chr --r2 --ld-window-r2 $minrsq --file $ldname.plink --out $ldname
     rm -rf *plink*
     rm -rf *nosex
 done
