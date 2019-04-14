@@ -1,19 +1,30 @@
 # GBS_SNP_filter v1.11
 
-After you get your ddRADseq/GBS dataset through your favourite pipeline, you might want to further filter the SNPs contained in the vcf before doing downstream analysis. This set of scripts filters for bi-allelicness, one SNP/locus, completeness, HWD and LD, and outputs vcf files for each filtering stage.
+##Summary 
+
+After you get your ddRADseq/GBS variant dataset through your favourite pipeline, you might want to further filter the SNPs contained in the vcf file before doing downstream analysis. This set of scripts allows to further filter to keep:
+* bi-allelic variants 
+* one SNP per locus
+* SNPs that have genotypes across most of the individuals (i.e. completeness), 
+* Hardy Weinberg Disequilibrium (LWD)
+* linked SNPs (based on LD) 
+
+
+It  outputs vcf files for each filtering stage.
 
 More detail: this bash/Rscript pipeline first filters for bi-allelic SNPs (and writes out \*.biallelic.vcf), then filters for one SNP/locus (prioritizing the SNP site found in the most individuals. If this is a tie, then the SNP with the highest average coverage. If this is a tie, then randomly selects a SNP. Writes this to \*.oneSNP.vcf). Following this, SNPs are filtered for completeness (according to the parameters you set in GBS_SNP_filter.txt. A vcf file with the format \*.X_Y.vcf will be written out, where X = the proportion of completeness for loci, Y = the proportion of missing data allowed per individual), then for HWE (\*.X_Y.Z_P.HWE.vcf, where Z = the p-value threshold used as a cut-off to suggest a locus is in HWD, and P = the threshold for the number of populations where HWD/LD could occur before that locus was tossed out), and finally for LD (\*.X_Y.Z_P.HWE.Q.ld.vcf, where Q = the Rsq threshold used to chuck out one out of a pair of loci in LD across P populations).
 
 In addition to the filtered vcf files from each step, there will be a number of other files written out: \*.log (contains the number of SNPs/samples across each \*.vcf file, and which samples/loci were binned during any of the steps); \*.X_Y.Z_P.HWE (contains the HWE p-values by row for each locus/by column for each population. This will only include loci that passed the completeness filter); \*.X_Y.Z_P.HWE.\*.pop.vcf (population specific vcf files used for the ld steps. These include only loci that passed the completeness and HWE filters); \*.X_Y.Z_P.HWE.\*.pop.ld (per population files containing pairs of loci in LD as defined by having a RSq >= Q); \*.X_Y.Z_P.HWE.\*.pop.log (log files from PLINK identifying the pairs of loci in LD); and \*.X_Y.Z_P.HWE.Q.rsq (contains loci removed due to LD, and the locus retained that they were in linkage with).
 
-# required inputs
-This pipeline requires you have a vcf file output from your favourite pipeline (e.g. ANGSD, ipyrad, stacks) etc., a file called popmap.txt which contains the population code for each individual, and a parameters file called GBS_SNP_filter.txt. These files are described below. It also requires you to have previously installed the R packages dplyr, readr, tibble, and stringr, and for you to have R, vcftools, and PLINK in your path. e.g.
+## required inputs
+
+This pipeline requires you have a vcf file output from your favourite pipeline (e.g. ANGSD, ipyrad, stacks etc.), a file called popmap.txt which contains the population code for each individual ([example popmap](popmap.txt)), and a parameters file called GBS_SNP_filter.txt. These files are described below. It also requires you to have previously installed the R packages dplyr, readr, tibble, and stringr, and for you to have R, vcftools, and PLINK in your path. e.g.
 ```
 export PATH="/software/R/bin:/software/bin/vcftools:/software/PLINK/1.09b3.32/plink:$PATH"
 ```
 
-# input vcf file
-Header lines starting with "##" will be ignored. The script expects your first sample to be in column 10. Samplenames should not have the search term "\_cov" in them as this will be used for filtering coverage within the script.
+## input vcf file
+Header lines starting with "##" will be ignored. The script expects your first sample to be in column 10. Sample names should not have the search term "\_cov" in them as this will be used for filtering coverage within the script.
 ```
 ##fileformat=VCFv4.0
 ##fileDate=2018/05/09
@@ -82,7 +93,7 @@ B109470-CGTGGTGCA Nuku
 ```
 
 # GBS_SNP_filter.txt
-On the first line you need to give the name of your original vcf file that will be processed. On the second line you should give the proportion of samples that has to be equalled or exceeded for a SNP to be retained in the dataset (e.g 0.85 = a SNP needs to be found in 85% or more of total samples to be retained). On the third line you need to give the the proportion of missing loci that will be tolerated for individual samples before they will be removed from the dataset (e.g. 0.9 = a sample can have up to 90% missing data before it is removed from the dataset). On the fourth line you need to give the p-value cut-off for determining whether a locus is out of HWE within a population. On the fifth line you need to give the r^2 cut-off for determining whether SNPs are in LD with each other within a population. On the sixth line you need to give the number of populations a locus has to be out of HWE/in LD across in before that locus is discarded. On the seventh line you need to give the column header for where the locus id you wish to use resides. On the eighth line you need to give any regular expression needed to modify the contents of the column specified on Line 7 to give just the locus name.
+On the first line you need to give the name of your original vcf file that will be processed. On the second line you should give the proportion of samples that has to be equalled or exceeded for a SNP to be retained in the dataset (e.g 0.85 = a SNP needs to be found in 85% or more of total samples to be retained). On the third line you need to give the proportion of missing loci that will be tolerated for individual samples before they will be removed from the dataset (e.g. 0.9 = a sample can have up to 90% missing data before it is removed from the dataset). On the fourth line you need to give the p-value cut-off for determining whether a locus is out of HWE within a population. On the fifth line you need to give the r^2 cut-off for determining whether SNPs are in LD with each other within a population. On the sixth line you need to give the number of populations a locus has to be out of HWE/in LD across in before that locus is discarded. On the seventh line you need to give the column header for where the locus id you wish to use resides. On the eighth line you need to give any regular expression needed to modify the contents of the column specified on Line 7 to give just the locus name.
 
 e.g. for the first vcf file presented above (make sure to leave a blank line on Line 8 if no regex pattern required)
 ```
@@ -93,7 +104,6 @@ robin.vcf
 0.5
 3
 #CHROM
-
 ```
 
 e.g. for the reference-guided vcf file presented above
