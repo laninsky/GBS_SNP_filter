@@ -26,7 +26,7 @@ It also requires you to have previously installed the **R packages:**
 
 ## required inputs
 
-This pipeline requires you have a vcf file output from your favourite pipeline (e.g. ANGSD, ipyrad, stacks etc.), a file called popmap.txt which contains the population code for each individual ([example popmap](popmap.txt)), and a parameters file called GBS_SNP_filter.txt. These files are described below and example are availales in [example_files](example_files). 
+This pipeline requires you have a vcf file(example.vcf[example.vcf](example_files/example.vcf])) output from your favourite pipeline (e.g. ANGSD, ipyrad, stacks etc.), a file called popmap.txt which contains the population code for each individual ([popmap.txt](example_files/popmap.txt)), and a parameters file called [GBS_SNP_filter.txt](GBS_SNP_filter.txt). These files are described below and example are availales in [example_files](example_files). 
 
 ## input vcf file
 Header lines starting with "##" will be ignored. The script expects your first sample to be in column 10. Sample names should not have the search term "\_cov" in them as this will be used for filtering coverage within the script.
@@ -132,12 +132,10 @@ If you are submitting through a slurm system, you might need to preface the bash
 ```
 srun bash GBS_SNP_filter.sh
 ```
-##Detailed workflow
+## Detailed workflow
 this bash/Rscript pipeline first filters for bi-allelic SNPs (and writes out \*.biallelic.vcf), then filters for one SNP/locus (prioritizing the SNP site found in the most individuals. If this is a tie, then the SNP with the highest average coverage. If this is a tie, then randomly selects a SNP. Writes this to \*.oneSNP.vcf). Following this, SNPs are filtered for completeness (according to the parameters you set in GBS_SNP_filter.txt. A vcf file with the format \*.X_Y.vcf will be written out, where X = the proportion of completeness for loci, Y = the proportion of missing data allowed per individual), then for HWE (\*.X_Y.Z_P.HWE.vcf, where Z = the p-value threshold used as a cut-off to suggest a locus is in HWD, and P = the threshold for the number of populations where HWD/LD could occur before that locus was tossed out), and finally for LD (\*.X_Y.Z_P.HWE.Q.ld.vcf, where Q = the Rsq threshold used to chuck out one out of a pair of loci in LD across P populations).
 
 In addition to the filtered vcf files from each step, there will be a number of other files written out: \*.log (contains the number of SNPs/samples across each \*.vcf file, and which samples/loci were binned during any of the steps); \*.X_Y.Z_P.HWE (contains the HWE p-values by row for each locus/by column for each population. This will only include loci that passed the completeness filter); *.X_Y.Z_P.HWE.*.pop.vcf (population specific vcf files used for the ld steps. These include only loci that passed the completeness and HWE filters); \*.X_Y.Z_P.HWE.\*.pop.ld (per population files containing pairs of loci in LD as defined by having a RSq >= Q); \*.X_Y.Z_P.HWE.\*.pop.log (log files from PLINK identifying the pairs of loci in LD); and \*.X_Y.Z_P.HWE.Q.rsq (contains loci removed due to LD, and the locus retained that they were in linkage with).
-
-
 
 
 # Troubleshooting
