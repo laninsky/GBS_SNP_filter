@@ -26,7 +26,7 @@ It also requires you to have previously installed the **R packages:**
 
 ## required inputs
 
-This pipeline requires you have a vcf file([example.vcf](example_files/example.vcf)) output from your favourite pipeline (e.g. ANGSD, ipyrad, stacks etc.), a file called popmap.txt which contains the population code for each individual ([popmap.txt](example_files/popmap.txt)), and a parameters file called [GBS_SNP_filter.txt](GBS_SNP_filter.txt). These files are described below and example are availales in [example_files](example_files). 
+This pipeline requires you have a vcf file([example.vcf](example_files/example.vcf)) output from your favourite pipeline (e.g. ANGSD, ipyrad, stacks etc.), a file called popmap.txt which contains the population code for each individual ([popmap.txt](example_files/popmap.txt)), and a parameters file called [GBS_SNP_filter.txt](GBS_SNP_filter.txt). These files are described below and examples are available in [example_files](example_files). 
 
 ## input vcf file
 Header lines starting with "##" will be ignored. The script expects your first sample to be in column 10. Sample names should not have the search term "\_cov" in them as this will be used for filtering coverage within the script.
