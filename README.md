@@ -5,7 +5,7 @@
 After you get your ddRADseq/GBS variant dataset through your favourite pipeline, you might want to further filter the SNPs contained in the vcf file before doing downstream analysis. This set of scripts allows to further filter to keep:
 * bi-allelic variants 
 * one SNP per locus
-* SNPs that have genotypes across most of the individuals (i.e. completeness),
+* SNPs that have genotypes across most of the individuals (i.e. completeness)
 * Hardy Weinberg Disequilibrium (LWD)
 * linked SNPs (based on LD) 
 
