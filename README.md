@@ -1,4 +1,4 @@
-# GBS_SNP_filter v1.11
+# GBS_SNP_filter v1.12
 
 ## Summary 
 
@@ -184,6 +184,8 @@ H. Wickham. Reshaping data with the reshape package. Journal of Statistical Soft
 Goudet, J., 2005. Hierfstat, a package for R to compute and test hierarchical F‐statistics. Molecular Ecology Notes, 5(1), pp.184-186.
 
 # Version history
+
+1.12: Reformatted the readme and a few of the associated repo files based on a pull request from [ldutoit](https://github.com/ldutoit). Thanks Ludo!
 
 1.11: Addressed https://github.com/laninsky/GBS_SNP_filter/issues/3 which actually resulted from two different things: I had no test for whether the GBS_SNP_filter.txt file that the user provides actually had enough lines, and also the code couldn't handle a null genotype where an explicit coverage of 0 was not given. Thanks to [ldutoit](https://github.com/ldutoit) for raising this. If your code ran through fine without R warnings, then you were not affected by these bugs!
 
