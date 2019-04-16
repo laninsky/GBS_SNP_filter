@@ -2,19 +2,19 @@
 
 ## Summary 
 
-After you get your ddRADseq/GBS variant dataset through your favourite pipeline, you might want to further filter the SNPs contained in the vcf file before doing downstream analysis. This set of scripts allows to further filter to keep:
-* bi-allelic variants 
-* one SNP per locus
+After you get your ddRADseq/GBS variant dataset through your favourite pipeline, you might want to further filter the SNPs contained in the vcf file before doing downstream analysis. This set of scripts allows you to further filter to keep:
+* Bi-allelic variants 
+* One SNP per locus
 * SNPs that have genotypes across most of the individuals (i.e. completeness)
-* Hardy Weinberg Disequilibrium (LWD)
-* linked SNPs (based on LD) 
-
+* Individuals that have genotypes across most of the SNPs (i.e. filtering out individuals with high levels of missing data)
+* SNPs in Hardy Weinberg Equilibrium (LWE)
+* Unlinked SNPs (based on LD) 
 
 It outputs vcf files at each filtering stage.
 
 ## Dependencies
 
-It also requires you to have previously installed the **R packages:**
+GBS_SNP_filter requires you to have previously installed the **R packages:**
 * dplyr 
 * readr
 * tibble
@@ -24,11 +24,11 @@ It also requires you to have previously installed the **R packages:**
 * [vcftools](https://vcftools.github.io/downloads.html)
 * [PLINK](https://www.cog-genomics.org/plink2) 
 
-## required inputs
+## Required inputs
 
-This pipeline requires you have a vcf file([example.vcf](example_files/example.vcf)) output from your favourite pipeline (e.g. ANGSD, ipyrad, stacks etc.), a file called popmap.txt which contains the population code for each individual ([popmap.txt](example_files/popmap.txt)), and a parameters file called [GBS_SNP_filter.txt](GBS_SNP_filter.txt). These files are described below and examples are available in [example_files](example_files). 
+This pipeline requires you have a vcf file([example.vcf](example_files/example.vcf)) output from your favourite pipeline (e.g. ANGSD, ipyrad, stacks etc.), a file called popmap.txt which contains the population assignment code for each individual ([popmap.txt](example_files/popmap.txt)), and a parameters file called [GBS_SNP_filter.txt](GBS_SNP_filter.txt). These files are described below and examples are available in [example_files](example_files). 
 
-## input vcf file
+## Input vcf file
 Header lines starting with "##" will be ignored. The script expects your first sample to be in column 10. Sample names should not have the search term "\_cov" in them as this will be used for filtering coverage within the script.
 ```
 ##fileformat=VCFv4.0
@@ -82,7 +82,7 @@ NC_031697.1     141382  223355_61       A       T       .       PASS    NS=27;AF
 NC_031697.1     147737  88272_58        C       A       .       PASS    NS=12;AF=0.083;locori=m GT:DP:AD        ./.:0:.,.       0/0:3:3,0
 NC_031697.1     147748  88272_47        C       A       .       PASS    NS=8;AF=0.125;locori=m  GT:DP:AD        ./.:0:.,.       0/0:3:3,0
 ```
-The scaffold the locus was assembled against is given in the #CHROM column, while the locus name is given in the ID column separated by the position within that locus by an underscore. For the GBS_SNP_filter.txt file below, you'll need to know what column you want the locus ID based on, and if there is a regular expression needed to remove everything except the locus ID from the contents of that column e.g. for above `_.*`. The locus name should not have a colon in it, because everything following the colon will be stripped away following the LD step.
+The scaffold the locus was assembled against is given in the #CHROM column, while the locus name is given in the ID column separated by the position within that locus by an underscore (e.g. LocusID_SNPLocation). For the GBS_SNP_filter.txt file below, you'll need to know what column you want the locus ID based on, and if there is a regular expression needed to remove everything except the locus ID from the contents of that column e.g. for the example (LocusID_SNPLocation) above `_.*`. The locus name should not have a colon in it, because everything following the colon will be stripped away following the LD step.
 
 ## popmap.txt
 Sample name (exactly matching that in the vcf file) in the left hand column, separated by white space from population name in the right column
@@ -124,7 +124,7 @@ _.*
 ```
 
 # To run GBS_SNP_filter
-Make sure GBS_SNP_filter.sh; GBS_SNP_filter_HWE.R; GBS_SNP_filter_rsq.R; and your input vcf file, your popmap.txt, and your GBS_SNP_filter.txt files are located in your working directory. Also make sure you have previously installed the R packages dplyr, readr, tibble and stringr, and have R, vcftools, and PLINK in your path. Then on the terminal:
+Make sure GBS_SNP_filter.sh; GBS_SNP_filter_HWE.R; GBS_SNP_filter_rsq.R; GBS_SNP_filter_chrom_modifier.R, your input vcf file, your popmap.txt, and your GBS_SNP_filter.txt files are located in your working directory. Also make sure you have previously installed the R packages dplyr, readr, tibble and stringr, and have R, vcftools, and PLINK in your path. Then on the terminal:
 ```
 bash GBS_SNP_filter.sh
 ```
@@ -134,13 +134,12 @@ srun bash GBS_SNP_filter.sh
 ```
 
 ## Detailed workflow
-this bash/Rscript pipeline first filters for bi-allelic SNPs (and writes out \*.biallelic.vcf), then filters for one SNP/locus (prioritizing the SNP site found in the most individuals. If this is a tie, then the SNP with the highest average coverage. If this is a tie, then randomly selects a SNP. Writes this to \*.oneSNP.vcf). Following this, SNPs are filtered for completeness (according to the parameters you set in GBS_SNP_filter.txt. A vcf file with the format \*.X_Y.vcf will be written out, where X = the proportion of completeness for loci, Y = the proportion of missing data allowed per individual), then for HWE (\*.X_Y.Z_P.HWE.vcf, where Z = the p-value threshold used as a cut-off to suggest a locus is in HWD, and P = the threshold for the number of populations where HWD/LD could occur before that locus was tossed out), and finally for LD (\*.X_Y.Z_P.HWE.Q.ld.vcf, where Q = the Rsq threshold used to chuck out one out of a pair of loci in LD across P populations).
+This bash/Rscript pipeline first filters for bi-allelic SNPs (and writes out \*.biallelic.vcf), then filters for one SNP/locus (prioritizing the SNP site found in the most individuals. If this is a tie, then the SNP with the highest average coverage is retained. If this is a tie, then GBS_SNP_filter randomly selects a SNP and writes this to \*.oneSNP.vcf). Following this, SNPs are filtered for completeness (according to the parameters you set in GBS_SNP_filter.txt. A vcf file with the format \*.X_Y.vcf will be written out, where X = the proportion of completeness for loci, Y = the proportion of missing data allowed per individual), then for HWE (\*.X_Y.Z_P.HWE.vcf, where Z = the p-value threshold used as a cut-off to suggest a locus is in HWD, and P = the threshold for the number of populations where HWD/LD could occur before that locus was tossed out), and finally for LD (\*.X_Y.Z_P.HWE.Q.ld.vcf, where Q = the Rsq threshold used to chuck out one out of a pair of loci in LD across P populations).
 
 In addition to the filtered vcf files from each step, there will be a number of other files written out: \*.log (contains the number of SNPs/samples across each \*.vcf file, and which samples/loci were binned during any of the steps); \*.X_Y.Z_P.HWE (contains the HWE p-values by row for each locus/by column for each population. This will only include loci that passed the completeness filter); *.X_Y.Z_P.HWE.*.pop.vcf (population specific vcf files used for the ld steps. These include only loci that passed the completeness and HWE filters); \*.X_Y.Z_P.HWE.\*.pop.ld (per population files containing pairs of loci in LD as defined by having a RSq >= Q); \*.X_Y.Z_P.HWE.\*.pop.log (log files from PLINK identifying the pairs of loci in LD); and \*.X_Y.Z_P.HWE.Q.rsq (contains loci removed due to LD, and the locus retained that they were in linkage with).
 
-
 # Troubleshooting
-If you find that too many SNPs are being discarded based on the SNP completeness filter (e.g. being found in >= 85% of the samples), it may be that you have had a larger-than-expected number of samples fail. I would suggest changing the second line of GBS_SNP_filter.txt to 0.0 and not filter SNPs based on this metric the first time around. Following filtering of the datasets for samples with high levels of missing data, you could then take the output vcf and run it through another round of filtering, bumping this second line back up to a more stringent value (e.g. 0.85)
+If you find that too many SNPs are being discarded based on the SNP completeness filter (e.g. being found in >= 85% of the samples), it may be that you have had a larger-than-expected number of samples fail. I would suggest changing the second line of GBS_SNP_filter.txt to 0.0 and to therefore not filter SNPs based on completeness the first time around. Following filtering of the datasets for samples with high levels of missing data, you could then take the output vcf and run it through another round of filtering, bumping this second line back up to a more stringent value (e.g. 0.85)
 
 In the LD step, the following message is safe to ignore (introduced in v 1.11 with the switch to read_table2 - see version history below)
 ```
@@ -169,7 +168,7 @@ Hadley Wickham, Romain Francois, Lionel Henry and Kirill Müller (2017). dplyr: 
 
 Hadley Wickham, Jim Hester and Romain Francois (2017). readr: Read Rectangular Text Data. R package version X.X.X. https://CRAN.R-project.org/package=readr
 
- Kirill Müller and Hadley Wickham (2018). tibble: Simple Data Frames. R package version 1.4.2. https://CRAN.R-project.org/package=tibble
+Kirill Müller and Hadley Wickham (2018). tibble: Simple Data Frames. R package version 1.4.2. https://CRAN.R-project.org/package=tibble
 
 Purcell S, Neale B, Todd-Brown K, Thomas L, Ferreira MAR, Bender D, Maller J, Sklar P, de Bakker PIW, Daly MJ & Sham PC (2007). PLINK: a toolset for whole-genome association and population-based linkage analysis. American Journal of Human Genetics, 81.
 
