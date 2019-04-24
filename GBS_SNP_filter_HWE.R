@@ -48,7 +48,7 @@ if (!((paste(basename,".oneSNP.vcf",sep="")) %in% filelist)) {#3A: if oneSNP.vcf
   notduplicated <- notduplicated %>%  mutate_at(vars(11:dim(temp)[2]), .funs = funs(cov = gsub("./.","0",gsub(":.*","",gsub("^.*?:","", . )))))
   notduplicated <- notduplicated %>%  mutate_at(vars((dim(temp)[2]+1):(dim(notduplicated)[2])),funs(as.numeric)) 
   duplicated <- temp %>% filter(., (locusname %in% duplicatedloci))  
-  duplicated <- duplicated %>% mutate_at(vars(11:dim(temp)[2]), .funs = funs(cov = gsub(":.*","",gsub("^.*?:","", . ))))   
+  duplicated <- duplicated %>% mutate_at(vars(11:dim(temp)[2]), .funs = funs(cov = gsub("./.","0",gsub(":.*","",gsub("^.*?:","", . )))))
   duplicated <- duplicated %>%  mutate_at(vars((dim(temp)[2]+1):(dim(duplicated)[2])),funs(as.numeric))
   duplicated_reduced <- NULL  
   for (i in duplicatedloci) {
