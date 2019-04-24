@@ -1,4 +1,4 @@
-# GBS_SNP_filter v1.12
+# GBS_SNP_filter v1.13
 
 ## Summary 
 
@@ -183,6 +183,8 @@ H. Wickham. Reshaping data with the reshape package. Journal of Statistical Soft
 Goudet, J., 2005. Hierfstat, a package for R to compute and test hierarchical F‐statistics. Molecular Ecology Notes, 5(1), pp.184-186.
 
 # Version history
+
+1.13: Addressed a number of little bugs that led to https://github.com/laninsky/GBS_SNP_filter/issues/5. Thanks to [OmidJa](https://github.com/OmidJa) for logging this issue. If you had been affected by this bug, the code would have failed and/or you might have had an extra "coverage" column appear in your final vcf.
 
 1.12: Reformatted the readme and a few of the associated repo files based on a pull request from [ldutoit](https://github.com/ldutoit). Thanks Ludo!
 
