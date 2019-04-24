@@ -29,7 +29,7 @@ GBS_SNP_filter requires you to have previously installed the **R packages:**
 This pipeline requires you have a vcf file ([example.vcf](example_files/example.vcf)) output from your favourite pipeline (e.g. ANGSD, ipyrad, stacks etc.), a file called popmap.txt which contains the population assignment code for each individual ([popmap.txt](example_files/popmap.txt)), and a parameters file called [GBS_SNP_filter.txt](example_files/GBS_SNP_filter.txt). These files are described below and examples are available in [example_files](example_files). 
 
 ## Input vcf file
-Header lines starting with "##" will be ignored. The script expects your first sample to be in column 10. Sample names should not have the search term "\_cov" in them as this will be used for filtering coverage within the script.
+Header lines starting with "##" will be ignored. The script expects your first sample to be in column 10, and for the format to be GT:DP:Other_stuff (e.g. GT in the first position, followed by DP, and then other info that will be ignored). Sample names should not have the search term "\_cov" in them as this will be used for filtering coverage within the script.
 ```
 ##fileformat=VCFv4.0
 ##fileDate=2018/05/09
