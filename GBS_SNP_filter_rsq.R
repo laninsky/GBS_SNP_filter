@@ -56,6 +56,9 @@ names(SNP_record)[(dim(SNP_record)[2])] <- "removed"
 
 j <- 1
 SNP_length <- dim(SNP_record)[1]
+if (is.na(parameters[8,1])) {
+  parameters[8,1] <- ""
+}  
 locusname <- gsub(parameters[8,1], "",as.matrix(temp %>% select(!!parameters[7,1])))[,1]
 temp <- add_column(temp,locusname,.before=TRUE)
 names(temp)[1] <- "locusname"  
