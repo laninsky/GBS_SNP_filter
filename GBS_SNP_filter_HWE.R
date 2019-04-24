@@ -78,7 +78,7 @@ if (!((paste(basename,".oneSNP.vcf",sep="")) %in% filelist)) {#3A: if oneSNP.vcf
     numberofheaders <- dim(headerrows)[1]
     temp <- read_tsv((paste(basename,".oneSNP.vcf",sep="")),col_names=TRUE,skip=numberofheaders)
     origcolnumber <- dim(temp)[2]
-    temp <- temp %>% mutate_at(vars(10:dim(temp)[2]), .funs = funs(cov = gsub(":.*","",gsub("^.*?:","", . )))) 
+    temp <- temp %>% mutate_at(vars(10:dim(temp)[2]), .funs = funs(cov = gsub("./.","0",gsub(":.*","",gsub("^.*?:","", . )))))
     temp <- temp %>% mutate_at(vars((origcolnumber+1):(dim(temp)[2])),funs(as.numeric))
 } #3B
 
