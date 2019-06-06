@@ -7,12 +7,13 @@ basename=`echo $filename | sed 's/.vcf//g'`
 
 if [ -f $basename.biallelic.vcf ]
 then
-  :
+  tempcheck="No"
 else
   grep "##" $filename > header_row.txt;
   headerlineno=`wc -l header_row.txt | awk '{print $1}'`;
   headerlineno=$((headerlineno+1))
   tail -n +$headerlineno $filename > temp;
+  tempcheck="Yes"
 fi	
 
 Rscript GBS_SNP_filter_HWE.R
@@ -29,7 +30,10 @@ done
 
 Rscript GBS_SNP_filter_rsq.R
 
-rm temp
+if [ $tempcheck == "Yes" ]
+then
+  rm temp
+fi
 
 else
 echo "Your GBS_SNP_filter.txt file does not have 8 lines. Are you missing parameters/a blank line on Line 8?"
