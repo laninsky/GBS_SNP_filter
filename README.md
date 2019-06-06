@@ -184,7 +184,7 @@ Goudet, J., 2005. Hierfstat, a package for R to compute and test hierarchical Fâ
 
 # Version history
 
-1.14: Fixed bugs introduced in 1.13 that lead to the final GBS_SNP_filter_rsq.R script failing if no regex pattern was provided. If your analysis was affected by this, it would have failed with an error message.
+1.14: Fixed bugs introduced in 1.13 that lead to the final GBS_SNP_filter_rsq.R script failing if no regex pattern was provided. If your analysis was affected by this, it would have failed with an error message. Also added some code to only try to remove 'temp' if it is actually present.
 
 1.13: Addressed a number of little bugs that led to https://github.com/laninsky/GBS_SNP_filter/issues/5. Thanks to [OmidJa](https://github.com/OmidJa) for logging this issue. If you had been affected by this bug, the code would have failed and/or you might have had an extra "coverage" column appear in your final vcf.
 
