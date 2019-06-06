@@ -61,9 +61,9 @@ if (is.na(parameters[8,1])) {
 }  
 
 if (parameters[8,1]=="") {
-  locusname <- gsub(parameters[8,1], "",as.matrix(temp %>% select(!!parameters[7,1])))[,1]
-} else {
   locusname <- as.matrix(temp %>% select(!!parameters[7,1]))[,1]
+} else {
+  locusname <- gsub(parameters[8,1], "",as.matrix(temp %>% select(!!parameters[7,1])))[,1] 
 }
 
 temp <- add_column(temp,locusname,.before=TRUE)
