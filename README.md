@@ -10,7 +10,7 @@ After you get your ddRADseq/GBS variant dataset through your favourite pipeline,
 * SNPs in Hardy Weinberg Equilibrium (LWE)
 * Unlinked SNPs (based on LD) 
 
-It outputs vcf files at each filtering stage.
+It outputs vcf files at each filtering stage. A tutorial for running GBS_SNP_filter is available [here]( https://otagomohio.github.io/2019-06-11_GBS_EE/sessions/filteringGBSfilter.html).
 
 ## Dependencies
 
@@ -123,7 +123,7 @@ ID
 _.*
 ```
 
-# To run GBS_SNP_filter
+## To run GBS_SNP_filter
 Make sure GBS_SNP_filter.sh; GBS_SNP_filter_HWE.R; GBS_SNP_filter_rsq.R; GBS_SNP_filter_chrom_modifier.R, your input vcf file, your popmap.txt, and your GBS_SNP_filter.txt files are located in your working directory. Also make sure you have previously installed the R packages dplyr, readr, tibble and stringr, and have R, vcftools, and PLINK in your path. Then on the terminal:
 ```
 bash GBS_SNP_filter.sh
@@ -138,7 +138,7 @@ This bash/Rscript pipeline first filters for bi-allelic SNPs (and writes out \*.
 
 In addition to the filtered vcf files from each step, there will be a number of other files written out: \*.log (contains the number of SNPs/samples across each \*.vcf file, and which samples/loci were binned during any of the steps); \*.X_Y.Z_P.HWE (contains the HWE p-values by row for each locus/by column for each population. This will only include loci that passed the completeness filter); \*.X_Y.Z_P.HWE.*.pop.vcf (population specific vcf files used for the ld steps. These include only loci that passed the completeness and HWE filters); \*.X_Y.Z_P.HWE.\*.pop.ld (per population files containing pairs of loci in LD as defined by having a RSq >= Q); \*.X_Y.Z_P.HWE.\*.pop.log (log files from PLINK identifying the pairs of loci in LD); and \*.X_Y.Z_P.HWE.Q.rsq (contains loci removed due to LD, and the locus retained that they were in linkage with).
 
-# Troubleshooting
+## Troubleshooting
 If you find that too many SNPs are being discarded based on the SNP completeness filter (e.g. being found in >= 85% of the samples), it may be that you have had a larger-than-expected number of samples fail. I would suggest changing the second line of GBS_SNP_filter.txt to 0.0 and to therefore not filter SNPs based on completeness the first time around. Following filtering of the datasets for samples with high levels of missing data, you could then take the output vcf and run it through another round of filtering, bumping this second line back up to a more stringent value (e.g. 0.85)
 
 In the LD step, the following message is safe to ignore (introduced in v 1.11 with the switch to read_table2 - see version history below)
@@ -147,10 +147,10 @@ Warning message:
 Missing column names filled in: 'X8' [8] 
 ```
 
-# Further utilities
+## Further utilities
 In the utilities folder are scripts for divvying out your "final" vcf into population-specific vcf files, and using reshape, vcfR, hierfstat and inbreedR to calculate individual-level (multi-locus heterozygosity) and population-level (He) estimates of heterozygosity.
 
-# Suggested citation
+## Suggested citation
 This code was first published in:
 TBD
 
