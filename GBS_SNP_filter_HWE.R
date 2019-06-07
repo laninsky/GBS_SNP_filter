@@ -175,7 +175,7 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1
   write.table(headerrows,(paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE.vcf",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE)
   write_delim(temp[,2:origcolnumber],(paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE.vcf",sep="")),delim="\t",append=TRUE,col_names=TRUE)    
   write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)  
-  write(paste("Following this filtering ",basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE.vcf has been written out, containing ",(dim(temp)[1])," SNPs and ", (origcolnumber-9), " samples",sep=""),logfilename,append=TRUE)   
+  write(paste("Following this filtering ",basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE.vcf has been written out, containing ",(dim(temp)[1])," SNPs and ", (origcolnumber-10), " samples",sep=""),logfilename,append=TRUE)   
   temp <- temp %>% select(-locusname)
 } else {  #5AB
   headerrows <- read_tsv("header_row.txt",col_names=FALSE)
