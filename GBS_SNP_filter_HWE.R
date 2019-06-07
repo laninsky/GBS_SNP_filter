@@ -39,6 +39,7 @@ if (!((paste(basename,".oneSNP.vcf",sep="")) %in% filelist)) {#3A: if oneSNP.vcf
   if (!(is.na(parameters[8,1]))) {
     locusname <- as_tibble(gsub(parameters[8,1],"",as.matrix(locusname)))
   }
+  origcolnumber <- dim(temp)[2]
   temp <- add_column(temp,as.matrix(locusname)[,1],.before=TRUE)
   names(temp)[1] <- "locusname"
   duplicatedloci <- unique(temp$locusname[which(duplicated(temp$locusname)==TRUE)])  
@@ -66,15 +67,13 @@ if (!((paste(basename,".oneSNP.vcf",sep="")) %in% filelist)) {#3A: if oneSNP.vcf
     } #4B 
     print(paste("Up to ",dim(duplicated_reduced)[1]," out of ",length(duplicatedloci)," loci with multiple SNPs",sep=""))
   }
-  origcolnumber <- dim(temp)[2]
   temp <- bind_rows(notduplicated,duplicated_reduced)
   write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)
   write(paste(basename,".oneSNP.vcf has the following number of SNPs:",sep=""),logfilename,append=TRUE)
   write((dim(temp)[1]),logfilename,append=TRUE) 
   write.table(headerrows,(paste(basename,".oneSNP.vcf",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE)  
-  write_delim(temp[,2:origcolnumber],(paste(basename,".oneSNP.vcf",sep="")),delim="\t",append=TRUE,col_names=TRUE)
+  write_delim(temp[,2:(origcolnumber+1)],(paste(basename,".oneSNP.vcf",sep="")),delim="\t",append=TRUE,col_names=TRUE)
   temp <- temp %>% select(-locusname)
-  origcolnumber <- dim(temp)[2]
 } else { #3AB if oneSNP.vcf does exist
     headerrows <- read_tsv("header_row.txt",col_names=FALSE)
     numberofheaders <- dim(headerrows)[1]
