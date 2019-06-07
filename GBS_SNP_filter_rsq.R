@@ -133,6 +133,9 @@ while (j <= SNP_length) {
   }
   print(paste("Up to ",j," out of ",dim(SNP_record)[1]," pairwise LD comparisons",sep=""))
   SNP_length <- dim(SNP_record)[1]
+  if (SNP_length==1) {
+    break
+  }  
   if(is.na(SNP_record[(j-1),8])) {
     break
   }
