@@ -205,3 +205,7 @@ for (k in 1:length(popnames)) {
         write_delim(tempK[,1:origcolnumber],(paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE.",popnames[k],".pop.vcf",sep="")),delim="\t",append=TRUE,col_names=TRUE)    
     }
  }
+
+print("GBS_SNP_filter_HWE.R has the following warnings():")
+warnings()
+print("If no warnings printed, none thrown by GBS_SNP_filter_HWE.R")
