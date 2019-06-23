@@ -19,6 +19,7 @@ GBS_SNP_filter requires the following **R packages:**
 * readr
 * tibble
 * stringr 
+
 (if these are not previously installed, they will be installed when GBS_SNP_filter runs)
 
 **Other dependencies**
