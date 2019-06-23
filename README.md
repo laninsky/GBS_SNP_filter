@@ -14,11 +14,12 @@ It outputs vcf files at each filtering stage. A tutorial for running GBS_SNP_fil
 
 ## Dependencies
 
-GBS_SNP_filter requires you to have previously installed the **R packages:**
+GBS_SNP_filter requires the following **R packages:**
 * dplyr 
 * readr
 * tibble
 * stringr 
+(if these are not previously installed, they will be installed when GBS_SNP_filter runs)
 
 **Other dependencies**
 * [vcftools](https://vcftools.github.io/downloads.html)
@@ -132,6 +133,7 @@ If you are submitting through a slurm system, you might need to preface the bash
 ```
 srun bash GBS_SNP_filter.sh
 ```
+**Memory requirements**: You should allow for approximately seven times the size of your original \*.vcf file in RAM.
 
 ## Detailed workflow
 This bash/Rscript pipeline first filters for bi-allelic SNPs (and writes out \*.biallelic.vcf), then filters for one SNP/locus (prioritizing the SNP site found in the most individuals. If this is a tie, then the SNP with the highest average coverage is retained. If this is a tie, then GBS_SNP_filter randomly selects a SNP and writes this to \*.oneSNP.vcf). Following this, SNPs are filtered for completeness (according to the parameters you set in GBS_SNP_filter.txt. A vcf file with the format \*.X_Y.vcf will be written out, where X = the proportion of completeness for loci, Y = the proportion of missing data allowed per individual), then for HWE (\*.X_Y.Z_P.HWE.vcf, where Z = the p-value threshold used as a cut-off to suggest a locus is in HWD, and P = the threshold for the number of populations where HWD/LD could occur before that locus was tossed out), and finally for LD (\*.X_Y.Z_P.HWE.Q.ld.vcf, where Q = the Rsq threshold used to chuck out one out of a pair of loci in LD across P populations).
