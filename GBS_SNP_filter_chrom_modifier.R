@@ -13,3 +13,7 @@ if (is.numeric(mapfile$X1)) {
 }
 
 write_tsv(mapfile,list.files(pattern="*.map$"),col_names=FALSE)
+
+print("GBS_SNP_filter_chrom_modifier.R has the following warnings():")
+warnings()
+print("If no warnings printed, none thrown by GBS_SNP_filter_HWE.R")
