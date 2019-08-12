@@ -155,7 +155,7 @@ In the utilities folder are scripts for divvying out your "final" vcf into popul
 
 ## Suggested citation
 This code was first published in:
-TBD
+Robin TBD
 
 If you could cite the pub, and the scripts as below, that would be lovely:
 
