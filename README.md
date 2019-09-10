@@ -1,4 +1,4 @@
-# GBS_SNP_filter v1.14
+# GBS_SNP_filter v1.15
 
 ## Summary 
 
@@ -185,7 +185,11 @@ H. Wickham. Reshaping data with the reshape package. Journal of Statistical Soft
 
 Goudet, J., 2005. Hierfstat, a package for R to compute and test hierarchical F‐statistics. Molecular Ecology Notes, 5(1), pp.184-186.
 
-# Version history
+# Version history  
+1.15: Removed a check for a previous row being NA in the while (j <= SNP_length) loop of [GBS_SNP_filter_rsq.R](https://github.com/laninsky/GBS_SNP_filter/blob/master/GBS_SNP_filter_rsq.R). Thanks to [OmidJa](https://github.com/OmidJa) for logging this issue. If you were affected, the pipeline would have failed with:   
+`Error in if (is.na(SNP_record[(j - 1), 8])) { :
+  argument is of length zero
+Execution halted`
 
 1.14: Fixed bugs introduced in 1.13 that lead to the final GBS_SNP_filter_rsq.R script failing if no regex pattern was provided. If your analysis was affected by this, it would have failed with an error message. Also added some code to only try to remove 'temp' if it is actually present. Finally, a bug was present (now fixed) that could cause the final sample in your vcf file to be silently dropped if not starting the analysis from scratch, sorry!
 
