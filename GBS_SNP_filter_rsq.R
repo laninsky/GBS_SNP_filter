@@ -1,4 +1,4 @@
-#GBS_SNP_filter v1.14
+#GBS_SNP_filter v1.15
 # Loading in relevant packages
 if (!require('dplyr')) install.packages('dplyr'); library('dplyr')
 if (!require('readr')) install.packages('readr'); library('readr')
