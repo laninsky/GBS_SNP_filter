@@ -135,9 +135,6 @@ while (j <= SNP_length) {
   SNP_length <- dim(SNP_record)[1]
   if (SNP_length==1) {
     break
-  }  
-  if(is.na(SNP_record[(j-1),8])) {
-    break
   }
 }    
 
