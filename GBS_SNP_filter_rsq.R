@@ -15,8 +15,8 @@ numberofheaders <- dim(headerrows)[1]
 
 temp <- read_tsv((paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE.vcf",sep="")),col_names=TRUE,skip=numberofheaders)
 origcolnumber <- dim(temp)[2]
-temp <- temp %>% mutate_at(vars(10:dim(temp)[2]), .funs = funs(cov = gsub("./.","0",gsub(":.*","",gsub("^.*?:","", . ))))) 
-temp <- temp %>%  mutate_at(vars((origcolnumber+1):(dim(temp)[2])),funs(as.numeric))
+temp <- temp %>% mutate_at(vars(10:dim(temp)[2]), .funs = list(cov = ~gsub("./.","0",gsub(":.*","",gsub("^.*?:","", . ))))) 
+temp <- temp %>%  mutate_at(vars((origcolnumber+1):(dim(temp)[2])),list(~as.numeric(.)))
 
 popmap <- read.table("popmap.txt",header=FALSE,stringsAsFactors=FALSE)
 popnames <- unique(popmap[,2])
@@ -29,7 +29,7 @@ for (k in 1:length(popnames)) {
   if ((paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE.",popnames[k],".pop.ld",sep="")) %in% list.files()) { #1A: Does this file exist (e.g. have all the sample been ditched due to SNP filters
     tempk <- read_table2((paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE.",popnames[k],".pop.ld",sep="")),col_names=TRUE)[,1:7]
     tempk <- select(tempk,c(SNP_A,SNP_B,R2))
-    tempk <- mutate_at(tempk,vars(SNP_A,SNP_B),funs(gsub(":.*","", . )))
+    tempk <- mutate_at(tempk,vars(SNP_A,SNP_B),list(~gsub(":.*","", . )))
     if(is.null(SNP_record)) {
       SNP_record <- tempk    
     }  else {
