@@ -1,4 +1,4 @@
-# GBS_SNP_filter v1.15
+# GBS_SNP_filter v1.16
 
 ## Summary 
 
@@ -24,7 +24,7 @@ GBS_SNP_filter requires the following **R packages:**
 
 **Other dependencies**
 * [vcftools](https://vcftools.github.io/downloads.html)
-* [PLINK](https://www.cog-genomics.org/plink2) 
+* [PLINK](https://www.cog-genomics.org/plink2) (but make sure this is not installed in your main folder with all your files)
 
 ## Required inputs
 
@@ -126,7 +126,7 @@ _.*
 ```
 
 ## To run GBS_SNP_filter
-Make sure GBS_SNP_filter.sh; GBS_SNP_filter_HWE.R; GBS_SNP_filter_rsq.R; GBS_SNP_filter_chrom_modifier.R, your input vcf file, your popmap.txt, and your GBS_SNP_filter.txt files are located in your working directory. Also make sure you have previously installed the R packages dplyr, readr, tibble and stringr, and have R, vcftools, and PLINK in your path. Then on the terminal:
+Make sure GBS_SNP_filter.sh; GBS_SNP_filter_HWE.R; GBS_SNP_filter_rsq.R; GBS_SNP_filter_chrom_modifier.R, your input vcf file, your popmap.txt, and your GBS_SNP_filter.txt files are located in your working directory. Also make sure you have previously installed the R packages dplyr, readr, tibble and stringr, and have R, vcftools, and PLINK in your path (but not in the directory you are running GBS_SNP_filter.sh in, or it will be deleted). Then on the terminal:
 ```
 bash GBS_SNP_filter.sh
 ```
@@ -144,7 +144,15 @@ In addition to the filtered vcf files from each step, there will be a number of 
 ## Troubleshooting
 If you find that too many SNPs are being discarded based on the SNP completeness filter (e.g. being found in >= 85% of the samples), it may be that you have had a larger-than-expected number of samples fail. I would suggest changing the second line of GBS_SNP_filter.txt to 0.0 and to therefore not filter SNPs based on completeness the first time around. Following filtering of the datasets for samples with high levels of missing data, you could then take the output vcf and run it through another round of filtering, bumping this second line back up to a more stringent value (e.g. 0.85)
 
-In the LD step, the following message is safe to ignore (introduced in v 1.11 with the switch to read_table2 - see version history below)
+The following warning is safe to ignore:
+```
+Note: Using an external vector in selections is ambiguous.
+ℹ Use `all_of(origcolnumber)` instead of `origcolnumber` to silence this message.
+ℹ See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.
+This message is displayed once per session.
+```
+
+In the LD step, the following message is also safe to ignore (introduced in v 1.11 with the switch to read_table2 - see version history below)
 ```
 Warning message:
 Missing column names filled in: 'X8' [8] 
@@ -157,6 +165,8 @@ length of 'dimnames' [2] not equal to array extent
 Calls: unlist -> lapply -> FUN -> which -> Ops.data.frame -> matrix
 Execution halted
 ```
+
+Make sure plink is not installed in the directory you are running GBS_SNP_filter.sh in, because one of the steps is cleaning up all the files that plink makes (`rm -rf *plink*`). If plink is located in your actual directory, it will be removed too!
 
 ## Further utilities
 In the utilities folder are scripts for divvying out your "final" vcf into population-specific vcf files, and using reshape, vcfR, hierfstat and inbreedR to calculate individual-level (multi-locus heterozygosity) and population-level (He) estimates of heterozygosity.
@@ -193,7 +203,9 @@ H. Wickham. Reshaping data with the reshape package. Journal of Statistical Soft
 
 Goudet, J., 2005. Hierfstat, a package for R to compute and test hierarchical F‐statistics. Molecular Ecology Notes, 5(1), pp.184-186.
 
-# Version history  
+# Version history
+1.16: Updated the code to remove one of the warnings detailed at https://github.com/laninsky/GBS_SNP_filter/issues/10 . Also made a note in the readme that the other warning can be safely ignored. This will not have affected the script running correctly.
+
 1.15: Removed a check for a previous row being NA in the while (j <= SNP_length) loop of [GBS_SNP_filter_rsq.R](https://github.com/laninsky/GBS_SNP_filter/blob/master/GBS_SNP_filter_rsq.R). Thanks to [OmidJa](https://github.com/OmidJa) for logging this issue. If you were affected, the pipeline would have failed with:   
 `Error in if (is.na(SNP_record[(j - 1), 8])) { :
   argument is of length zero
