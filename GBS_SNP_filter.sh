@@ -1,4 +1,4 @@
-#GBS_SNP_filter v1.15
+#GBS_SNP_filter v1.16
 if [ `wc -l GBS_SNP_filter.txt | awk '{print $1}'` -eq 8 ]
 then
 
