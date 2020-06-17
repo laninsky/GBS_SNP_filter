@@ -47,11 +47,11 @@ if (!((paste(basename,".oneSNP.vcf",sep="")) %in% filelist)) {#3A: if oneSNP.vcf
   write("The following number of loci have more than one SNP:",logfilename,append=TRUE) 
   write(length(duplicatedloci),logfilename,append=TRUE)
   notduplicated <- temp %>% filter(., (!(locusname %in% duplicatedloci))) 
-  notduplicated <- notduplicated %>%  mutate_at(vars(11:dim(temp)[2]), .funs = funs(cov = gsub("./.","0",gsub(":.*","",gsub("^.*?:","", . )))))
-  notduplicated <- notduplicated %>%  mutate_at(vars((dim(temp)[2]+1):(dim(notduplicated)[2])),funs(as.numeric)) 
+  notduplicated <- notduplicated %>%  mutate_at(vars(11:dim(temp)[2]), .funs = list(cov = ~gsub("./.","0",gsub(":.*","",gsub("^.*?:","", . )))))
+  notduplicated <- notduplicated %>%  mutate_at(vars((dim(temp)[2]+1):(dim(notduplicated)[2])),list(~as.numeric(.))) 
   duplicated <- temp %>% filter(., (locusname %in% duplicatedloci))  
-  duplicated <- duplicated %>% mutate_at(vars(11:dim(temp)[2]), .funs = funs(cov = gsub("./.","0",gsub(":.*","",gsub("^.*?:","", . )))))
-  duplicated <- duplicated %>%  mutate_at(vars((dim(temp)[2]+1):(dim(duplicated)[2])),funs(as.numeric))
+  duplicated <- duplicated %>% mutate_at(vars(11:dim(temp)[2]), .funs = list(cov = ~gsub("./.","0",gsub(":.*","",gsub("^.*?:","", . )))))
+  duplicated <- duplicated %>%  mutate_at(vars((dim(temp)[2]+1):(dim(duplicated)[2])),list(~as.numeric(.)))
   duplicated_reduced <- NULL  
   for (i in duplicatedloci) {
     temptemp <- duplicated %>% filter(., (locusname %in% i))
@@ -79,8 +79,8 @@ if (!((paste(basename,".oneSNP.vcf",sep="")) %in% filelist)) {#3A: if oneSNP.vcf
     numberofheaders <- dim(headerrows)[1]
     temp <- read_tsv((paste(basename,".oneSNP.vcf",sep="")),col_names=TRUE,skip=numberofheaders)
     origcolnumber <- dim(temp)[2]
-    temp <- temp %>% mutate_at(vars(10:dim(temp)[2]), .funs = funs(cov = gsub("./.","0",gsub(":.*","",gsub("^.*?:","", . )))))
-    temp <- temp %>% mutate_at(vars((origcolnumber+1):(dim(temp)[2])),funs(as.numeric))
+    temp <- temp %>% mutate_at(vars(10:dim(temp)[2]), .funs = list(cov = ~gsub("./.","0",gsub(":.*","",gsub("^.*?:","", . )))))
+    temp <- temp %>% mutate_at(vars((origcolnumber+1):(dim(temp)[2])),list(~as.numeric(.)))
 } #3B
 
 if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".vcf",sep="")) %in% filelist)) { #4A: if dataset hasn't previously been filtered with the same parameters
@@ -106,8 +106,8 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".vcf",sep="")) %i
   numberofheaders <- dim(headerrows)[1]
   temp <- read_tsv((paste(basename,".",parameters[2,1],"_",parameters[3,1],".vcf",sep="")),col_names=TRUE,skip=numberofheaders)
   origcolnumber <- dim(temp)[2]
-  temp <- temp %>% mutate_at(vars(10:dim(temp)[2]), .funs = funs(cov = gsub("./.","0",gsub(":.*","",gsub("^.*?:","", . )))))
-  temp <- temp %>% mutate_at(vars((origcolnumber+1):(dim(temp)[2])),funs(as.numeric))
+  temp <- temp %>% mutate_at(vars(10:dim(temp)[2]), .funs = list(cov = ~gsub("./.","0",gsub(":.*","",gsub("^.*?:","", . )))))
+  temp <- temp %>% mutate_at(vars((origcolnumber+1):(dim(temp)[2])),list(as.numeric(.)))
 }  #4B
 
 if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE.vcf",sep="")) %in% filelist)) { #5A: If we haven't carried out HWE filtering for files with this combo of parameters yet
@@ -126,7 +126,7 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1
       print(paste("Up to ",k," out of ",length(popnames), " populations",sep="")) 
       temptemppop <- select(temptemp, which(names(temptemp) %in% (popmap[(which(popmap[,2]==popnames[k])),1])))
       if (!((dim(temptemppop)[2])==0)) { #80A: if the population has samples remaining
-        temptemppop <- mutate_at(temptemppop,vars(1:dim(temptemppop)[2]),funs(gsub(":.*","", . )))
+        temptemppop <- mutate_at(temptemppop,vars(1:dim(temptemppop)[2]),list(~gsub(":.*","", . )))
         hwetablepvalues <- unlist(lapply(1:(dim(temp)[1]),function(x){
           tempmatrix <- matrix(0,ncol=2,nrow=3)
           tempmatrix[1,1] <- length(which(temptemppop[x,]=="0/0"))
@@ -182,8 +182,8 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1
   numberofheaders <- dim(headerrows)[1]
   temp <- read_tsv((paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE.vcf",sep="")),col_names=TRUE,skip=numberofheaders)
   origcolnumber <- dim(temp)[2]
-  temp <- temp %>% mutate_at(vars(10:dim(temp)[2]), .funs = funs(cov = gsub("./.","0",gsub(":.*","",gsub("^.*?:","", . )))))
-  temp <- temp %>% mutate_at(vars((origcolnumber+1):(dim(temp)[2])),funs(as.numeric))
+  temp <- temp %>% mutate_at(vars(10:dim(temp)[2]), .funs = list(cov = ~gsub("./.","0",gsub(":.*","",gsub("^.*?:","", . )))))
+  temp <- temp %>% mutate_at(vars((origcolnumber+1):(dim(temp)[2])),list(~as.numeric(.)))
 } #5B
 
 
@@ -196,7 +196,7 @@ for (k in 1:length(popnames)) {
         write(paste(popnames[k]," does not have any samples remaining, potentially because they were removed due to having too many missing SNPs",sep=""),logfilename,append=TRUE)
      } else {
         origcolnumber <- dim(tempK)[2]
-        tempK <- mutate_at(tempK,vars(10:origcolnumber),.funs = funs(genotype = gsub(":.*","", . )))     
+        tempK <- mutate_at(tempK,vars(10:origcolnumber),.funs = list(genotype = ~gsub(":.*","", . )))     
         tempK <- mutate(tempK, hom1 = rowSums(tempK[,(origcolnumber+1):(dim(tempK)[2])] == "1/1"))
         tempK <- mutate(tempK, het = ((rowSums(tempK[,(origcolnumber+1):(dim(tempK)[2]-1)] == "0/1")+(rowSums(tempK[,(origcolnumber+1):(dim(tempK)[2]-1)] == "1/0")))))
         tempK <- mutate(tempK, hom0 = rowSums(tempK[,(origcolnumber+1):(dim(tempK)[2])-2] == "0/0"))
