@@ -1,4 +1,4 @@
-#GBS_SNP_filter v1.16
+#GBS_SNP_filter v1.17
 # Loading in relevant packages
 if (!require('dplyr')) install.packages('dplyr'); library('dplyr')
 if (!require('readr')) install.packages('readr'); library('readr')
@@ -29,7 +29,6 @@ for (k in 1:length(popnames)) {
   if ((paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE.",popnames[k],".pop.ld",sep="")) %in% list.files()) { #1A: Does this file exist (e.g. have all the sample been ditched due to SNP filters
     tempk <- read_table2((paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE.",popnames[k],".pop.ld",sep="")),col_names=TRUE)[,1:7]
     tempk <- select(tempk,c(SNP_A,SNP_B,R2))
-    tempk <- mutate_at(tempk,vars(SNP_A,SNP_B),list(~gsub(":.*","", . )))
     if(is.null(SNP_record)) {
       SNP_record <- tempk    
     }  else {
@@ -56,75 +55,119 @@ names(SNP_record)[(dim(SNP_record)[2])] <- "removed"
 
 j <- 1
 SNP_length <- dim(SNP_record)[1]
-if (is.na(parameters[8,1])) {
-  parameters[8,1] <- ""
-}  
 
-if (parameters[8,1]=="") {
-  locusname <- as.matrix(temp %>% select(!!parameters[7,1]))[,1]
+if(all(temp$ID==".")) {
+  missing_ID <- TRUE
 } else {
-  locusname <- gsub(parameters[8,1], "",as.matrix(temp %>% select(!!parameters[7,1])))[,1] 
+  missing_ID <- FALSE
 }
 
-temp <- add_column(temp,locusname,.before=TRUE)
-names(temp)[1] <- "locusname"  
-
 while (j <= SNP_length) {
-  zero_one_count <- sum(temp[(which(temp$locusname %in% SNP_record[j,1])),((origcolnumber+2):(dim(temp)[2]))]==0)
-  zero_two_count <- sum(temp[(which(temp$locusname %in% SNP_record[j,2])),((origcolnumber+2):(dim(temp)[2]))]==0)
+  # Getting the position of the SNPs in LD in the vcf
+  if(missing_ID) {
+    vcfpos1 <- which(temp$`#CHROM`==gsub(":.*","",SNP_record$Locus_1[j]) & temp$`POS`==gsub(".*:","",SNP_record$Locus_1[j]))
+    vcfpos2 <- which(temp$`#CHROM`==gsub(":.*","",SNP_record$Locus_2[j]) & temp$`POS`==gsub(".*:","",SNP_record$Locus_2[j]))
+  } else {
+    vcfpos1 <- which(temp$ID==SNP_record$Locus_1[j])
+    vcfpos2 <- which(temp$ID==SNP_record$Locus_2[j])
+  }
   
+  # Counting number of samples without data for each SNP (will ditch the SNP with more missing samples)
+  zero_one_count <- length(which(temp[vcfpos1,(origcolnumber+1):(dim(temp)[2])]==0))
+  zero_two_count <- length(which(temp[vcfpos2,(origcolnumber+1):(dim(temp)[2])]==0))
+  
+  # If Locus_1 SNP has more missing data than Locus_2
   if (zero_one_count > zero_two_count) {
-    temp <- temp[-(which(temp$locusname %in% SNP_record[j,1])),]
-    SNP_record[j,(dim(SNP_record)[2])] <- SNP_record[j,1]    
-    todelete <- c((which(SNP_record[,1] %in% SNP_record[j,1])),(which(SNP_record[,2] %in% SNP_record[j,1])))    
+    # Remove vcfpos1 from the vcf file
+    temp <- temp[-vcfpos1,]
+    # Record this snp as the one removed
+    SNP_record[j,(dim(SNP_record)[2])] <- SNP_record[j,1]
+    # Find the rows in SNP_record which also have the removed SNP
+    todelete <- c((which(SNP_record[,1] %in% SNP_record[j,1])),(which(SNP_record[,2] %in% SNP_record[j,1])))     # Making sure that there would be something left in SNP_record if we deleted these rows (otherwise no point - we are at the end of the loop)
     if(length(todelete[(!(todelete <= j))])>0) {
+        # Modifying todelete to not delete the row we've just recorded the LD SNP removed from
         todelete <- todelete[(!(todelete <= j))]
+        # Removing these rows from SNP_record (b/c we've already deleted one of the SNPs in LD)
         SNP_record <- SNP_record[-todelete,]
     }
+    # Moving on to the next row
     j <- j + 1  
   } else {
+    # If Locus_2 SNP has more missing data than Locus_2
     if (zero_two_count > zero_one_count) {
-      temp <- temp[-(which(temp$locusname %in% SNP_record[j,2])),]
-      SNP_record[j,(dim(SNP_record)[2])] <- SNP_record[j,2]    
+      # Remove vcfpos2 from the vcf file
+      temp <- temp[-vcfpos2,]
+      # Record this snp as the one removed
+      SNP_record[j,(dim(SNP_record)[2])] <- SNP_record[j,2] 
+      # Find the rows in SNP_record which also have the removed SNP
       todelete <- c((which(SNP_record[,1] %in% SNP_record[j,2])),(which(SNP_record[,2] %in% SNP_record[j,2])))    
+      # Making sure that there would be something left in SNP_record if we deleted these rows (otherwise no point - we are at the end of the loop)
       if(length(todelete[(!(todelete <= j))])>0) {
+          # Modifying todelete to not delete the row we've just recorded the LD SNP removed from
           todelete <- todelete[(!(todelete <= j))]
+          # Removing these rows from SNP_record (b/c we've already deleted one of the SNPs in LD)
           SNP_record <- SNP_record[-todelete,]
       }
+      # Moving on to the next row
       j <- j + 1  
     } else {
+      # If both SNPs have equal number of missing samples, will go by average coverage instead
       if (zero_two_count==zero_one_count) {
-        zero_one_count <- sum(temp[(which(temp$locusname %in% SNP_record[j,1])),((origcolnumber+2):(dim(temp)[2]))])
-        zero_two_count <- sum(temp[(which(temp$locusname %in% SNP_record[j,2])),((origcolnumber+2):(dim(temp)[2]))])         
+        zero_one_count <- mean(as.numeric(temp[vcfpos1,(origcolnumber+1):(dim(temp)[2])]))
+        zero_two_count <- mean(as.numeric(temp[vcfpos2,(origcolnumber+1):(dim(temp)[2])]))
+         # if Locus_1 SNP has lower average coverage than Locus_2
          if (zero_one_count < zero_two_count) {
-            temp <- temp[-(which(temp$locusname %in% SNP_record[j,1])),]
-            SNP_record[j,(dim(SNP_record)[2])] <- SNP_record[j,1]    
-            todelete <- c((which(SNP_record[,1] %in% SNP_record[j,1])),(which(SNP_record[,2] %in% SNP_record[j,1])))    
-            if(length(todelete[(!(todelete <= j))])>0) {
-              todelete <- todelete[(!(todelete <= j))]
-              SNP_record <- SNP_record[-todelete,]
-            }
+            # Remove vcfpos1 from the vcf file
+             temp <- temp[-vcfpos1,]
+             # Record this snp as the one removed
+             SNP_record[j,(dim(SNP_record)[2])] <- SNP_record[j,1]
+             # Find the rows in SNP_record which also have the removed SNP
+             todelete <- c((which(SNP_record[,1] %in% SNP_record[j,1])),(which(SNP_record[,2] %in% SNP_record[j,1])))    
+             # Making sure that there would be something left in SNP_record if we deleted these rows (otherwise no point - we are at the end of the loop)
+             if(length(todelete[(!(todelete <= j))])>0) {
+                # Modifying todelete to not delete the row we've just recorded the LD SNP removed from
+                todelete <- todelete[(!(todelete <= j))]
+                # Removing these rows from SNP_record (b/c we've already deleted one of the SNPs in LD)
+                SNP_record <- SNP_record[-todelete,]
+             }
+             # Moving on to the next row
             j <- j + 1  
           } else {
+            # if Locus_2 SNP has lower average coverage than Locus_1
             if (zero_two_count < zero_one_count) {
-              temp <- temp[-(which(temp$locusname %in% SNP_record[j,2])),]
-              SNP_record[j,(dim(SNP_record)[2])] <- SNP_record[j,2]    
-              todelete <- c((which(SNP_record[,1] %in% SNP_record[j,2])),(which(SNP_record[,2] %in% SNP_record[j,2])))    
+              # Remove vcfpos2 from the vcf file
+              temp <- temp[-vcfpos2,]
+              # Record this snp as the one removed
+              SNP_record[j,(dim(SNP_record)[2])] <- SNP_record[j,2]
+              # Find the rows in SNP_record which also have the removed SNP
+              todelete <- c((which(SNP_record[,1] %in% SNP_record[j,2])),(which(SNP_record[,2] %in% SNP_record[j,2])))
+              # Making sure that there would be something left in SNP_record if we deleted these rows (otherwise no point - we are at the end of the loop)
               if(length(todelete[(!(todelete <= j))])>0) {
+                 # Modifying todelete to not delete the row we've just recorded the LD SNP removed from
                  todelete <- todelete[(!(todelete <= j))]
+                 # Removing these rows from SNP_record (b/c we've already deleted one of the SNPs in LD)
                  SNP_record <- SNP_record[-todelete,]
               }
+              # Moving on to the next row
               j <- j + 1  
             } else {
+              # If the SNPs are equal in coverage
               if (zero_two_count==zero_one_count) {
-                 temp <- temp[-(which(temp$locusname %in% SNP_record[j,2])),]
-                 SNP_record[j,(dim(SNP_record)[2])] <- SNP_record[j,2]    
-                 todelete <- c((which(SNP_record[,1] %in% SNP_record[j,2])),(which(SNP_record[,2] %in% SNP_record[j,2])))    
-                 if(length(todelete[(!(todelete <= j))])>0) {
-                   todelete <- todelete[(!(todelete <= j))]
-                   SNP_record <- SNP_record[-todelete,]
-                 }
-                 j <- j + 1              
+                  # Arbritrarily chosing to remove the second SNP
+                  temp <- temp[-vcfpos2,]
+                  # Record this snp as the one removed
+                  SNP_record[j,(dim(SNP_record)[2])] <- SNP_record[j,2]
+                  # Find the rows in SNP_record which also have the removed SNP
+                  todelete <- c((which(SNP_record[,1] %in% SNP_record[j,2])),(which(SNP_record[,2] %in% SNP_record[j,2])))
+                  # Making sure that there would be something left in SNP_record if we deleted these rows (otherwise no point - we are at the end of the loop)
+                  if(length(todelete[(!(todelete <= j))])>0) {
+                    # Modifying todelete to not delete the row we've just recorded the LD SNP removed from
+                    todelete <- todelete[(!(todelete <= j))]
+                    # Removing these rows from SNP_record (b/c we've already deleted one of the SNPs in LD)
+                    SNP_record <- SNP_record[-todelete,]
+                  }
+                  # Moving on to the next row
+                  j <- j + 1              
                }
              }
           }
@@ -143,7 +186,7 @@ write(paste(dim(SNP_record)[1]," loci will be removed as they were in linkage wi
 write(paste("These loci will be listed in ",basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE.",parameters[5,1],".rsq",sep=""),logfilename,append=TRUE)
 write.table(SNP_record,paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE.",parameters[5,1],".rsq",sep=""),row.names=FALSE,col.names=TRUE,quote=FALSE)  
 write.table(headerrows,(paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE.",parameters[5,1],".ld.vcf",sep="")),quote=FALSE,row.names=FALSE,col.names=FALSE)
-write_delim(temp[,2:(origcolnumber+1)],(paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE.",parameters[5,1],".ld.vcf",sep="")),delim="\t",append=TRUE,col_names=TRUE)    
+write_delim(temp[,1:origcolnumber],(paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE.",parameters[5,1],".ld.vcf",sep="")),delim="\t",append=TRUE,col_names=TRUE)    
 write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)  
 write(paste("Following this filtering ",basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE.",parameters[5,1],".ld.vcf has been written out, containing ",(dim(temp)[1])," SNPs and ", (origcolnumber-9), " samples",sep=""),logfilename,append=TRUE)   
 
