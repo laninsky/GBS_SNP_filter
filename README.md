@@ -1,4 +1,4 @@
-# GBS_SNP_filter v1.16
+# GBS_SNP_filter v1.17
 
 ## Summary 
 
@@ -204,6 +204,8 @@ H. Wickham. Reshaping data with the reshape package. Journal of Statistical Soft
 Goudet, J., 2005. Hierfstat, a package for R to compute and test hierarchical F‐statistics. Molecular Ecology Notes, 5(1), pp.184-186.
 
 # Version history
+1.17: It appears that the plink files that VCFtools outputs will use #CHROM:POS as an identifier for the SNP_A and SNP_B columns, and POS as an identifier for the BP_A and BP_B columns, if ID is not present in the vcf file. In contrast, if ID is present in the vcf file, it will be used for the SNP_A and SNP_B columns, with POS again used for the BP_A and BP_B columns. The code in GBS_SNP_filter_rsq.R has been updated to reflect this. If this had affected you, an error would have killed GBS_SNP_filter.sh, and/or potentially SNPs in LD may not have been removed.
+
 1.16: Updated the code to remove one of the warnings detailed at https://github.com/laninsky/GBS_SNP_filter/issues/10 . Also made a note in the readme that the other warning can be safely ignored. This will not have affected the script running correctly.
 
 1.15: Removed a check for a previous row being NA in the while (j <= SNP_length) loop of [GBS_SNP_filter_rsq.R](https://github.com/laninsky/GBS_SNP_filter/blob/master/GBS_SNP_filter_rsq.R). Thanks to [OmidJa](https://github.com/OmidJa) for logging this issue. If you were affected, the pipeline would have failed with:   
