@@ -177,7 +177,7 @@ Robin TBD
 
 If you could cite the pub, and the scripts as below, that would be lovely:
 
-Alexander, A. 2018. GBS_SNP_filter v1.x.x. Available from https://github.com/laninsky/GBS_SNP_filter
+Alexander, A. 2020. GBS_SNP_filter v1.x.x. Available from https://github.com/laninsky/GBS_SNP_filter
 
 This pipeline also wouldn't be possible without the programs/packages listed below. Please cite them as well:
 
