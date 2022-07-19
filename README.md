@@ -1,5 +1,7 @@
 # GBS_SNP_filter v1.17
 
+* bug notice * GBS_SNP_filter is not curently filtering for missingness correctly. The current workaround is to use VCF tools to do this in a stand alone step.
+
 ## Summary 
 
 After you get your ddRADseq/GBS variant dataset through your favourite pipeline, you might want to further filter the SNPs contained in the vcf file before doing downstream analysis. This set of scripts allows you to further filter to keep:
