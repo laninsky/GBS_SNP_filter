@@ -1,6 +1,6 @@
 # GBS_SNP_filter v1.17
 
-* bug notice * GBS_SNP_filter is not curently filtering for missingness correctly. The current workaround is to use VCF tools to do this in a stand alone step.
+* **bug notice** GBS_SNP_filter is not curently filtering for missingness correctly. The current workaround is to use VCF tools to do this in a stand alone step.
 
 ## Summary 
 
