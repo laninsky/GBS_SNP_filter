@@ -116,6 +116,7 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".vcf",sep="")) %i
   temp <- temp %>% mutate_at(vars((origcolnumber+1):(dim(temp)[2])),as.numeric)
 }  #4B
 
+write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)
 write(paste("Created/read *",parameters[2,1],"_",parameters[3,1],".vcf OK", sep=""),logfilename,append=TRUE)
 
 if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE.vcf",sep="")) %in% filelist)) { #5A: If we haven't carried out HWE filtering for files with this combo of parameters yet
