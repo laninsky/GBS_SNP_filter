@@ -33,6 +33,9 @@ if (!((paste(basename,".biallelic.vcf",sep="")) %in% filelist)) {#1A  what to do
   } #2B  
 } #1B  
 
+write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)
+write("Created/read *biallelic.vcf OK",logfilename,append=TRUE)
+
 # Taking just one SNP per locus, finding loci with more than one SNP based on duplicate loci names
 if (!((paste(basename,".oneSNP.vcf",sep="")) %in% filelist)) {#3A: if oneSNP.vcf doesn't exist, filtering for SNPs with the greatest coverage across individuals
   locusname <- temp %>% select(!!parameters[7,1])
@@ -83,6 +86,9 @@ if (!((paste(basename,".oneSNP.vcf",sep="")) %in% filelist)) {#3A: if oneSNP.vcf
     temp <- temp %>% mutate_at(vars((origcolnumber+1):(dim(temp)[2])),list(~as.numeric(.)))
 } #3B
 
+write(format(Sys.time(),usetz = TRUE),logfilename,append=TRUE)
+write("Created/read *oneSNP.vcf OK",logfilename,append=TRUE)
+
 if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".vcf",sep="")) %in% filelist)) { #4A: if dataset hasn't previously been filtered with the same parameters
   zerocounts <- unlist(lapply(1:(dim(temp)[1]),function(x){sum((temp[x,(origcolnumber+1):(dim(temp)[2])])==0)}))
   keeprows <- which(zerocounts<=((1-as.numeric(parameters[2,1]))*((dim(temp)[2])-origcolnumber)))
@@ -109,6 +115,8 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".vcf",sep="")) %i
   temp <- temp %>% mutate_at(vars(10:dim(temp)[2]), .funs = list(cov = ~gsub("./.","0",gsub(":.*","",gsub("^.*?:","", . )))))
   temp <- temp %>% mutate_at(vars((origcolnumber+1):(dim(temp)[2])),as.numeric)
 }  #4B
+
+write(paste("Created/read *",parameters[2,1],"_",parameters[3,1],".vcf OK", sep=""),logfilename,append=TRUE)
 
 if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE.vcf",sep="")) %in% filelist)) { #5A: If we haven't carried out HWE filtering for files with this combo of parameters yet
   locusname <- temp %>% select(!!parameters[7,1])
@@ -183,9 +191,10 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1
   temp <- read_tsv((paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE.vcf",sep="")),col_names=TRUE,skip=numberofheaders)
   origcolnumber <- dim(temp)[2]
   temp <- temp %>% mutate_at(vars(10:dim(temp)[2]), .funs = list(cov = ~gsub("./.","0",gsub(":.*","",gsub("^.*?:","", . )))))
-  temp <- temp %>% mutate_at(vars((origcolnumber+1):(dim(temp)[2])),as.numeric)
+  temp <- temp %>% mutate_at(vars((origcolnumber+1):(dim(temp)[2])),list(~as.numeric(.)))
 } #5B
 
+print("Creating HWE filtered vcf OK")
 
 popmap <- read.table("popmap.txt",header=FALSE,stringsAsFactors=FALSE)
 popnames <- unique(popmap[,2])
