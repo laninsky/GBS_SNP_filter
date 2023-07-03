@@ -107,7 +107,7 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".vcf",sep="")) %i
   temp <- read_tsv((paste(basename,".",parameters[2,1],"_",parameters[3,1],".vcf",sep="")),col_names=TRUE,skip=numberofheaders)
   origcolnumber <- dim(temp)[2]
   temp <- temp %>% mutate_at(vars(10:dim(temp)[2]), .funs = list(cov = ~gsub("./.","0",gsub(":.*","",gsub("^.*?:","", . )))))
-  temp <- temp %>% mutate_at(vars((origcolnumber+1):(dim(temp)[2])),list(as.numeric(.)))
+  temp <- temp %>% mutate_at(vars((origcolnumber+1):(dim(temp)[2])),as.numeric)
 }  #4B
 
 if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE.vcf",sep="")) %in% filelist)) { #5A: If we haven't carried out HWE filtering for files with this combo of parameters yet
@@ -183,7 +183,7 @@ if (!((paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1
   temp <- read_tsv((paste(basename,".",parameters[2,1],"_",parameters[3,1],".",parameters[4,1],"_",parameters[6,1],".HWE.vcf",sep="")),col_names=TRUE,skip=numberofheaders)
   origcolnumber <- dim(temp)[2]
   temp <- temp %>% mutate_at(vars(10:dim(temp)[2]), .funs = list(cov = ~gsub("./.","0",gsub(":.*","",gsub("^.*?:","", . )))))
-  temp <- temp %>% mutate_at(vars((origcolnumber+1):(dim(temp)[2])),list(~as.numeric(.)))
+  temp <- temp %>% mutate_at(vars((origcolnumber+1):(dim(temp)[2])),as.numeric)
 } #5B
 
 
